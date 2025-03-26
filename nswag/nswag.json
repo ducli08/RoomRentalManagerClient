@@ -1,0 +1,24 @@
+{
+  "runtime": "Net80",
+  "defaultVariables": null,
+  "documentGenerator": {
+    "fromDocument": {
+      "json": "https://localhost:7246/swagger/v1/swagger.json",
+      "url": "http://redocly.github.io/redoc/openapi.yaml",
+      "output": "swagger.json",
+      "newLineBehavior": "Auto"
+    }
+  },
+  "codeGenerators": {
+    "openApiToTypeScriptClient": {
+    "className": "ApiClient",
+    "moduleName": "",
+    "template": "angular",
+    "httpClass": "HttpClient",
+    "useSingletonProvider": true,
+    "promiseType": "Promise",
+    "injectionTokenType": "InjectionToken",
+    "output": "D:/Working/RoomRentalClient/RoomRentalManagerClient/src/app/shared/service-proxies.ts"
+  }
+  }
+}
