@@ -76,81 +76,21 @@ export class ServiceProxy {
     }
 
     /**
-     * @param id (optional) 
-     * @param roleGroupId (optional) 
-     * @param name (optional) 
-     * @param email (optional) 
-     * @param provinceId (optional) 
-     * @param districtId (optional) 
-     * @param wardId (optional) 
-     * @param address (optional) 
-     * @param iDCard (optional) 
-     * @param job (optional) 
-     * @param dateOfBirth (optional) 
-     * @param gender (optional) 
-     * @param bikeId (optional) 
+     * @param body (optional) 
      * @return Success
      */
-    createOrEditUser(id: number | undefined, roleGroupId: number | undefined, name: string | undefined, email: string | undefined, provinceId: number | undefined, districtId: number | undefined, wardId: number | undefined, address: string | undefined, iDCard: number | undefined, job: string | undefined, dateOfBirth: Date | undefined, gender: string | undefined, bikeId: string | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/createOrEditUser?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "Id=" + encodeURIComponent("" + id) + "&";
-        if (roleGroupId === null)
-            throw new Error("The parameter 'roleGroupId' cannot be null.");
-        else if (roleGroupId !== undefined)
-            url_ += "RoleGroupId=" + encodeURIComponent("" + roleGroupId) + "&";
-        if (name === null)
-            throw new Error("The parameter 'name' cannot be null.");
-        else if (name !== undefined)
-            url_ += "Name=" + encodeURIComponent("" + name) + "&";
-        if (email === null)
-            throw new Error("The parameter 'email' cannot be null.");
-        else if (email !== undefined)
-            url_ += "Email=" + encodeURIComponent("" + email) + "&";
-        if (provinceId === null)
-            throw new Error("The parameter 'provinceId' cannot be null.");
-        else if (provinceId !== undefined)
-            url_ += "ProvinceId=" + encodeURIComponent("" + provinceId) + "&";
-        if (districtId === null)
-            throw new Error("The parameter 'districtId' cannot be null.");
-        else if (districtId !== undefined)
-            url_ += "DistrictId=" + encodeURIComponent("" + districtId) + "&";
-        if (wardId === null)
-            throw new Error("The parameter 'wardId' cannot be null.");
-        else if (wardId !== undefined)
-            url_ += "WardId=" + encodeURIComponent("" + wardId) + "&";
-        if (address === null)
-            throw new Error("The parameter 'address' cannot be null.");
-        else if (address !== undefined)
-            url_ += "Address=" + encodeURIComponent("" + address) + "&";
-        if (iDCard === null)
-            throw new Error("The parameter 'iDCard' cannot be null.");
-        else if (iDCard !== undefined)
-            url_ += "IDCard=" + encodeURIComponent("" + iDCard) + "&";
-        if (job === null)
-            throw new Error("The parameter 'job' cannot be null.");
-        else if (job !== undefined)
-            url_ += "Job=" + encodeURIComponent("" + job) + "&";
-        if (dateOfBirth === null)
-            throw new Error("The parameter 'dateOfBirth' cannot be null.");
-        else if (dateOfBirth !== undefined)
-            url_ += "DateOfBirth=" + encodeURIComponent(dateOfBirth ? "" + dateOfBirth.toISOString() : "") + "&";
-        if (gender === null)
-            throw new Error("The parameter 'gender' cannot be null.");
-        else if (gender !== undefined)
-            url_ += "Gender=" + encodeURIComponent("" + gender) + "&";
-        if (bikeId === null)
-            throw new Error("The parameter 'bikeId' cannot be null.");
-        else if (bikeId !== undefined)
-            url_ += "BikeId=" + encodeURIComponent("" + bikeId) + "&";
+    createOrEditUser(body: CreateOrEditUserDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/User/createOrEditUser";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
             })
         };
 
@@ -191,7 +131,7 @@ export class ServiceProxy {
      * @return Success
      */
     editingPopupRead(): Observable<UserDto[]> {
-        let url_ = this.baseUrl + "/editingPopupRead";
+        let url_ = this.baseUrl + "/api/User/editingPopupRead";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -244,6 +184,90 @@ export class ServiceProxy {
         }
         return _observableOf<UserDto[]>([]);
     }
+}
+
+export class CreateOrEditUserDto implements ICreateOrEditUserDto {
+    id?: number | undefined;
+    roleGroupId?: number;
+    name?: string | undefined;
+    email?: string | undefined;
+    provinceId?: number;
+    districtId?: number;
+    wardId?: number;
+    address?: string | undefined;
+    idCard?: number;
+    job?: string | undefined;
+    dateOfBirth?: Date;
+    gender?: string | undefined;
+    bikeId?: string | undefined;
+
+    constructor(data?: ICreateOrEditUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.roleGroupId = _data["roleGroupId"];
+            this.name = _data["name"];
+            this.email = _data["email"];
+            this.provinceId = _data["provinceId"];
+            this.districtId = _data["districtId"];
+            this.wardId = _data["wardId"];
+            this.address = _data["address"];
+            this.idCard = _data["idCard"];
+            this.job = _data["job"];
+            this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
+            this.gender = _data["gender"];
+            this.bikeId = _data["bikeId"];
+        }
+    }
+
+    static fromJS(data: any): CreateOrEditUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateOrEditUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["roleGroupId"] = this.roleGroupId;
+        data["name"] = this.name;
+        data["email"] = this.email;
+        data["provinceId"] = this.provinceId;
+        data["districtId"] = this.districtId;
+        data["wardId"] = this.wardId;
+        data["address"] = this.address;
+        data["idCard"] = this.idCard;
+        data["job"] = this.job;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
+        data["gender"] = this.gender;
+        data["bikeId"] = this.bikeId;
+        return data;
+    }
+}
+
+export interface ICreateOrEditUserDto {
+    id?: number | undefined;
+    roleGroupId?: number;
+    name?: string | undefined;
+    email?: string | undefined;
+    provinceId?: number;
+    districtId?: number;
+    wardId?: number;
+    address?: string | undefined;
+    idCard?: number;
+    job?: string | undefined;
+    dateOfBirth?: Date;
+    gender?: string | undefined;
+    bikeId?: string | undefined;
 }
 
 export class UserDto implements IUserDto {
