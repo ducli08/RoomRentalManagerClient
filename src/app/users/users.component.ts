@@ -1,0 +1,95 @@
+import { Component ,OnInit} from '@angular/core';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { ServiceProxy, UserDto } from '../shared/service.proxies';
+export interface Data {
+  id: number;
+  name: string;
+  email: string;
+  provinceId: string;
+  districtId: string;
+  wardId: string;
+  idCard: string;
+  job: string;
+  dateOfBirth: string;
+  gender: string;
+  bikeId: string;
+  address: string;
+  disabled: boolean;
+}
+@Component({
+  selector: 'app-users',
+  imports: [NzTableModule,NzButtonModule],
+  templateUrl: './users.component.html',
+  styleUrl: './users.component.css',
+  standalone: true
+})
+export class UsersComponent implements OnInit{
+  checked = false;
+  loading = false;
+  indeterminate = false;
+  listOfData: readonly Data[] = [];
+  lstUser: readonly UserDto[] = [];
+  listOfCurrentPageData: readonly UserDto[] = [];
+  setOfCheckedId = new Set<number>();
+  constructor(private _serviceProxy: ServiceProxy) {}
+  updateCheckedSet(id: number, checked: boolean): void {
+    if (checked) {
+      this.setOfCheckedId.add(id);
+    } else {
+      this.setOfCheckedId.delete(id);
+    }
+  }
+  onCurrentPageDataChange(listOfCurrentPageData: readonly UserDto[]): void {
+    this.listOfCurrentPageData = listOfCurrentPageData;
+    this.refreshCheckedStatus();
+  }
+  refreshCheckedStatus(): void {
+    const listOfEnabledData = this.listOfCurrentPageData;
+    this.checked = listOfEnabledData.every(({ id }) => id !== undefined && this.setOfCheckedId.has(id));
+    this.indeterminate = listOfEnabledData.some(({ id }) => id !== undefined && this.setOfCheckedId.has(id)) && !this.checked;
+  }
+
+  onItemChecked(id: number, checked: boolean): void {
+    this.updateCheckedSet(id, checked);
+    this.refreshCheckedStatus();
+  }
+
+  onAllChecked(checked: boolean): void {
+    this.listOfCurrentPageData
+      .forEach(({ id }) => id !== undefined && this.updateCheckedSet(id, checked));
+    this.refreshCheckedStatus();
+  }
+
+  sendRequest(): void {
+    this.loading = true;
+    const requestData = this.listOfData.filter(data => data.id !== undefined && this.setOfCheckedId.has(data.id));
+    console.log(requestData);
+    setTimeout(() => {
+      this.setOfCheckedId.clear();
+      this.refreshCheckedStatus();
+      this.loading = false;
+    }, 1000);
+  }
+
+  ngOnInit(): void {
+    // this.listOfData = new Array(100).fill(0).map((_, index) => ({
+    //   id: index,
+    //   name: `Edward King ${index}`,
+    //   email: `leminhduc8821@gmail.com`,
+    //   provinceId: `Hà Nội`,
+    //   districtId: `Thanh Trì`,
+    //   wardId: `Thanh Liệt`,
+    //   address: `Số 16, ngõ 55, đường Thanh Liệt`,
+    //   idCard: `001201006123`,
+    //   job: `IT`,
+    //   dateOfBirth: `08/08/2001`,
+    //   gender: `Nam`,
+    //   bikeId: `0`,
+    //   disabled: index % 2 === 0
+    // }));
+    this._serviceProxy.editingPopupRead().subscribe(result => {
+      this.lstUser = result;
+    });
+  }
+}

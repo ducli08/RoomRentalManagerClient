@@ -11,14 +11,15 @@
   },
   "codeGenerators": {
     "openApiToTypeScriptClient": {
-    "className": "ApiClient",
-    "moduleName": "",
-    "template": "angular",
-    "httpClass": "HttpClient",
-    "useSingletonProvider": true,
-    "promiseType": "Promise",
-    "injectionTokenType": "InjectionToken",
-    "output": "D:/Working/RoomRentalClient/RoomRentalManagerClient/src/app/shared/service-proxies.ts"
-  }
+      "className": "{controller}ServiceProxy",
+      "moduleName": "",
+      "template": "angular",
+      "httpClass": "HttpClient",
+      "useSingletonProvider": true,
+      "promiseType": "Promise",
+      "injectionTokenType": "InjectionToken",
+      "output": "D:/Working/RoomRentalClient/src/app/shared/service.proxies.ts",
+      "generateClientClasses": true
+    }
   }
 }
