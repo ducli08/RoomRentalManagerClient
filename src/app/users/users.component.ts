@@ -1,7 +1,7 @@
 import { Component ,OnInit} from '@angular/core';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { ServiceProxy, UserDto } from '../shared/service.proxies';
+import { PagedRequestDto, ServiceProxy, UserDto } from '../shared/service.proxies';
 export interface Data {
   id: number;
   name: string;
@@ -30,6 +30,7 @@ export class UsersComponent implements OnInit{
   indeterminate = false;
   listOfData: readonly Data[] = [];
   lstUser: readonly UserDto[] = [];
+  userRequestDto : PagedRequestDto = new PagedRequestDto();
   listOfCurrentPageData: readonly UserDto[] = [];
   setOfCheckedId = new Set<number>();
   constructor(private _serviceProxy: ServiceProxy) {}
@@ -73,27 +74,16 @@ export class UsersComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    // this.listOfData = new Array(100).fill(0).map((_, index) => ({
-    //   id: index,
-    //   name: `Edward King ${index}`,
-    //   email: `leminhduc8821@gmail.com`,
-    //   provinceId: `Hà Nội`,
-    //   districtId: `Thanh Trì`,
-    //   wardId: `Thanh Liệt`,
-    //   address: `Số 16, ngõ 55, đường Thanh Liệt`,
-    //   idCard: `001201006123`,
-    //   job: `IT`,
-    //   dateOfBirth: `08/08/2001`,
-    //   gender: `Nam`,
-    //   bikeId: `0`,
-    //   disabled: index % 2 === 0
-    // }));
-    // this._serviceProxy.editingPopupRead()
+    this.userRequestDto.page = 1;
+    this.userRequestDto.pageSize = 10;
+    this.userRequestDto.search = "";
+    this.userRequestDto.sortBy = "";
+    this.userRequestDto.sortOrder = "";
     this.getUsers();
   }
 
   getUsers(): void{
-    this._serviceProxy.editingPopupRead(1, 10,"", "","").subscribe(response =>{
+    this._serviceProxy.editingPopupRead(this.userRequestDto).subscribe(response =>{
       this.lstUser = response.listItem ? response.listItem : [];
     }, error => {
       console.error('Error fetching users:', error);

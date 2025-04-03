@@ -128,46 +128,26 @@ export class ServiceProxy {
     }
 
     /**
-     * @param page (optional) 
-     * @param pageSize (optional) 
-     * @param search (optional) 
-     * @param sortBy (optional) 
-     * @param sortOrder (optional) 
+     * @param body (optional) 
      * @return Success
      */
-    editingPopupRead(page: number | undefined, pageSize: number | undefined, search: string | undefined, sortBy: string | undefined, sortOrder: string | undefined): Observable<UserDtoPagedResultDto> {
-        let url_ = this.baseUrl + "/api/User/editingPopupRead?";
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
-            url_ += "Page=" + encodeURIComponent("" + page) + "&";
-        if (pageSize === null)
-            throw new Error("The parameter 'pageSize' cannot be null.");
-        else if (pageSize !== undefined)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        if (search === null)
-            throw new Error("The parameter 'search' cannot be null.");
-        else if (search !== undefined)
-            url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        if (sortBy === null)
-            throw new Error("The parameter 'sortBy' cannot be null.");
-        else if (sortBy !== undefined)
-            url_ += "SortBy=" + encodeURIComponent("" + sortBy) + "&";
-        if (sortOrder === null)
-            throw new Error("The parameter 'sortOrder' cannot be null.");
-        else if (sortOrder !== undefined)
-            url_ += "SortOrder=" + encodeURIComponent("" + sortOrder) + "&";
+    editingPopupRead(body: PagedRequestDto | undefined): Observable<UserDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/User/editingPopupRead";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
                 "Accept": "text/plain"
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processEditingPopupRead(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -286,6 +266,58 @@ export interface ICreateOrEditUserDto {
     dateOfBirth?: Date;
     gender?: string | undefined;
     bikeId?: string | undefined;
+}
+
+export class PagedRequestDto implements IPagedRequestDto {
+    page?: number;
+    pageSize?: number;
+    search?: string | undefined;
+    sortBy?: string | undefined;
+    sortOrder?: string | undefined;
+
+    constructor(data?: IPagedRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"];
+            this.pageSize = _data["pageSize"];
+            this.search = _data["search"];
+            this.sortBy = _data["sortBy"];
+            this.sortOrder = _data["sortOrder"];
+        }
+    }
+
+    static fromJS(data: any): PagedRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page;
+        data["pageSize"] = this.pageSize;
+        data["search"] = this.search;
+        data["sortBy"] = this.sortBy;
+        data["sortOrder"] = this.sortOrder;
+        return data;
+    }
+}
+
+export interface IPagedRequestDto {
+    page?: number;
+    pageSize?: number;
+    search?: string | undefined;
+    sortBy?: string | undefined;
+    sortOrder?: string | undefined;
 }
 
 export class UserDto implements IUserDto {
