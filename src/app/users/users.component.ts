@@ -88,8 +88,15 @@ export class UsersComponent implements OnInit{
     //   bikeId: `0`,
     //   disabled: index % 2 === 0
     // }));
-    this._serviceProxy.editingPopupRead().subscribe(result => {
-      this.lstUser = result;
+    // this._serviceProxy.editingPopupRead()
+    this.getUsers();
+  }
+
+  getUsers(): void{
+    this._serviceProxy.editingPopupRead(1, 10,"", "","").subscribe(response =>{
+      this.lstUser = response.listItem ? response.listItem : [];
+    }, error => {
+      console.error('Error fetching users:', error);
     });
   }
 }
