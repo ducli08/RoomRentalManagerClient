@@ -117,8 +117,8 @@
             "nullable": true
           },
           "roleGroupId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "nullable": true
           },
           "name": {
             "type": "string",
@@ -129,24 +129,24 @@
             "nullable": true
           },
           "provinceId": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "nullable": true
           },
           "districtId": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "nullable": true
           },
           "wardId": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "nullable": true
           },
           "address": {
             "type": "string",
             "nullable": true
           },
           "idCard": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "nullable": true
           },
           "job": {
             "type": "string",

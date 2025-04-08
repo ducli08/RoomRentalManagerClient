@@ -6,13 +6,15 @@ import { NzFormItemComponent, NzFormLabelComponent, NzFormControlComponent } fro
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 
 @Component({
   selector: 'app-create-users',
   templateUrl: './createusers.component.html',
   styleUrls: ['./createusers.component.css'],
   imports: [ReactiveFormsModule, NzFormItemComponent, NzFormLabelComponent,
-     NzFormControlComponent, NzModalModule, NzInputModule, NzButtonModule],
+     NzFormControlComponent, NzModalModule, NzInputModule, NzButtonModule,
+     NzDatePickerModule],
   standalone: true,
 })
 export class CreateUsersComponent {
@@ -30,6 +32,8 @@ export class CreateUsersComponent {
       job: ['', Validators.required],
       dateOfBirth: ['', Validators.required],
       gender: ['', Validators.required],
+      roleGroupId: ['', Validators.required],
+      bikeId: ['', Validators.required]
     });
   }
 

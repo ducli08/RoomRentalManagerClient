@@ -186,14 +186,14 @@ export class ServiceProxy {
 
 export class CreateOrEditUserDto implements ICreateOrEditUserDto {
     id?: number | undefined;
-    roleGroupId?: number;
+    roleGroupId?: string | undefined;
     name?: string | undefined;
     email?: string | undefined;
-    provinceId?: number;
-    districtId?: number;
-    wardId?: number;
+    provinceId?: string | undefined;
+    districtId?: string | undefined;
+    wardId?: string | undefined;
     address?: string | undefined;
-    idCard?: number;
+    idCard?: string | undefined;
     job?: string | undefined;
     dateOfBirth?: Date;
     gender?: string | undefined;
@@ -254,14 +254,14 @@ export class CreateOrEditUserDto implements ICreateOrEditUserDto {
 
 export interface ICreateOrEditUserDto {
     id?: number | undefined;
-    roleGroupId?: number;
+    roleGroupId?: string | undefined;
     name?: string | undefined;
     email?: string | undefined;
-    provinceId?: number;
-    districtId?: number;
-    wardId?: number;
+    provinceId?: string | undefined;
+    districtId?: string | undefined;
+    wardId?: string | undefined;
     address?: string | undefined;
-    idCard?: number;
+    idCard?: string | undefined;
     job?: string | undefined;
     dateOfBirth?: Date;
     gender?: string | undefined;

@@ -59,7 +59,7 @@
       <nz-form-item>
         <nz-form-label nzFor="dateOfBirth">Ngày sinh</nz-form-label>
         <nz-form-control  >
-          <input nz-input formControlName="dateOfBirth" id="dateOfBirth" placeholder="Nhập ngày sinh" />
+          <nz-date-picker formControlName="dateOfBirth" id ="dateOfBirth"></nz-date-picker>
         </nz-form-control>
       </nz-form-item>
   
@@ -69,8 +69,23 @@
           <input nz-input formControlName="gender" id="gender" placeholder="Nhập giới tính" />
         </nz-form-control>
       </nz-form-item>
-  
+     
       <nz-form-item>
+        <nz-form-label  nzFor="roleGroupId">Quyền</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="roleGroupId" id="roleGroupId" placeholder="Nhập quyền" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label  nzFor="bikeId">Biển số xe</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="bikeId" id="bikeId" placeholder="Nhập giới tính" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <br/>
         <nz-form-control >
           <button nz-button nzType="primary" [disabled]="createUserForm.invalid">Tạo mới</button>
         </nz-form-control>
