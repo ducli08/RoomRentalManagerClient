@@ -1,7 +1,10 @@
 import { Component ,OnInit} from '@angular/core';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { CommonModule } from '@angular/common';
 import { PagedRequestDto, ServiceProxy, UserDto } from '../shared/service.proxies';
+import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
+import { CreateUsersComponent } from './create/createusers.component';
 export interface Data {
   id: number;
   name: string;
@@ -19,7 +22,7 @@ export interface Data {
 }
 @Component({
   selector: 'app-users',
-  imports: [NzTableModule,NzButtonModule],
+  imports: [NzTableModule,NzButtonModule, CommonModule, NzModalModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
   standalone: true
@@ -33,7 +36,10 @@ export class UsersComponent implements OnInit{
   userRequestDto : PagedRequestDto = new PagedRequestDto();
   listOfCurrentPageData: readonly UserDto[] = [];
   setOfCheckedId = new Set<number>();
-  constructor(private _serviceProxy: ServiceProxy) {}
+  total = 0;
+  pageIndex = 1;
+  pageSize = 10;
+  constructor(private _serviceProxy: ServiceProxy, private modalService: NzModalService) {}
   updateCheckedSet(id: number, checked: boolean): void {
     if (checked) {
       this.setOfCheckedId.add(id);
@@ -41,9 +47,16 @@ export class UsersComponent implements OnInit{
       this.setOfCheckedId.delete(id);
     }
   }
-  onCurrentPageDataChange(listOfCurrentPageData: readonly UserDto[]): void {
-    this.listOfCurrentPageData = listOfCurrentPageData;
-    this.refreshCheckedStatus();
+  onPageChange(page: number): void {
+    debugger
+    this.pageIndex = page;
+    this.userRequestDto.page = page;
+    this.getUsers();
+  }
+  onPageSizeChange(pageSize: number): void {
+    this.pageSize = pageSize;
+    this.userRequestDto.pageSize = pageSize;
+    this.getUsers();
   }
   refreshCheckedStatus(): void {
     const listOfEnabledData = this.listOfCurrentPageData;
@@ -74,8 +87,8 @@ export class UsersComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.userRequestDto.page = 1;
-    this.userRequestDto.pageSize = 10;
+    this.userRequestDto.page = this.pageIndex;
+    this.userRequestDto.pageSize = this.pageSize;
     this.userRequestDto.search = "";
     this.userRequestDto.sortBy = "";
     this.userRequestDto.sortOrder = "";
@@ -85,8 +98,21 @@ export class UsersComponent implements OnInit{
   getUsers(): void{
     this._serviceProxy.editingPopupRead(this.userRequestDto).subscribe(response =>{
       this.lstUser = response.listItem ? response.listItem : [];
+      this.total = response.totalCount ? response.totalCount : 0;
     }, error => {
       console.error('Error fetching users:', error);
+    });
+  }
+
+  trackData(index: number, item: any): any {
+    return item.id;  // Hoặc bất kỳ thuộc tính duy nhất nào của item
+  }
+
+  openCreateUserModal(): void {
+    this.modalService.create({
+      nzTitle: 'Tạo người dùng mới',
+      nzContent: CreateUsersComponent,
+      nzFooter: null, // Bạn có thể thêm footer tùy chỉnh nếu cần
     });
   }
 }

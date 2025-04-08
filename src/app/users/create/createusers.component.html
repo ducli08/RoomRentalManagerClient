@@ -1,0 +1,79 @@
+<div class="create-user">
+    <form nz-form [formGroup]="createUserForm" (ngSubmit)="onSubmit()">
+      <nz-form-item>
+        <nz-form-label nzFor="name">Tên</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="name" id="name" placeholder="Nhập tên" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-label nzFor="email">Email</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="email" id="email" placeholder="Nhập email" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-label nzFor="provinceId">Tỉnh/TP</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="provinceId" id="provinceId" placeholder="Nhập tỉnh/thành phố" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-label nzFor="districtId">Quận/Huyện</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="districtId" id="districtId" placeholder="Nhập quận/huyện" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-label nzFor="wardId">Xã/Phường</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="wardId" id="wardId" placeholder="Nhập xã/phường" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-label nzFor="address">Địa chỉ</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="address" id="address" placeholder="Nhập địa chỉ" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-label nzFor="idCard">Số CCCD</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="idCard" id="idCard" placeholder="Nhập số CCCD" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-label nzFor="job">Nghề nghiệp</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="job" id="job" placeholder="Nhập nghề nghiệp" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-label nzFor="dateOfBirth">Ngày sinh</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="dateOfBirth" id="dateOfBirth" placeholder="Nhập ngày sinh" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-label  nzFor="gender">Giới tính</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="gender" id="gender" placeholder="Nhập giới tính" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-control >
+          <button nz-button nzType="primary" [disabled]="createUserForm.invalid">Tạo mới</button>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>

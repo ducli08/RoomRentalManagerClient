@@ -10,12 +10,20 @@
   </button>
   <span>Selected {{ setOfCheckedId.size }} items</span>
 </div>
+<div>
+  <button nz-button nzType="primary" (click)="openCreateUserModal()">Tạo mới người dùng</button>
+</div>
 <nz-table
   #rowSelectionTable
   nzShowPagination
   nzShowSizeChanger
   [nzData]="lstUser"
-  (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+  [nzTotal]="total"
+  [nzPageSize]="pageSize"
+  [nzPageIndex]="pageIndex"
+  [nzLoading]="loading"
+  (nzPageIndexChange)="onPageChange($event)"
+  (nzPageSizeChange)="onPageSizeChange($event)"
 >
   <thead>
     <tr>
@@ -39,8 +47,7 @@
     </tr>
   </thead>
   <tbody>
-    @for (data of rowSelectionTable.data; track data) {
-    <tr>
+    <tr *ngFor="let data of rowSelectionTable.data; trackBy: trackData">
       <td
         [nzChecked]="data.id !== undefined && setOfCheckedId.has(data.id)"
         [nzLabel]="data.name !== undefined ? data.name : null"
@@ -58,6 +65,5 @@
       <td>{{ data.gender }}</td>
       <td>{{ data.bikeId }}</td>
     </tr>
-    }
   </tbody>
 </nz-table>
