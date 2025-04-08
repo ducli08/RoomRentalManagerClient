@@ -17,21 +17,27 @@
       <nz-form-item>
         <nz-form-label nzFor="provinceId">Tỉnh/TP</nz-form-label>
         <nz-form-control  >
-          <input nz-input formControlName="provinceId" id="provinceId" placeholder="Nhập tỉnh/thành phố" />
+          <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Select province" formControlName="provinceId" id="provinceId">
+            <nz-option *ngFor="let province of lstProvinces" [nzValue]="province.value" [nzLabel]="province.text"></nz-option>
+          </nz-select>
         </nz-form-control>
       </nz-form-item>
   
       <nz-form-item>
         <nz-form-label nzFor="districtId">Quận/Huyện</nz-form-label>
         <nz-form-control  >
-          <input nz-input formControlName="districtId" id="districtId" placeholder="Nhập quận/huyện" />
+          <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Select district" formControlName="districtId" id="districtId">
+            <nz-option *ngFor="let district of lstDistricts" [nzValue]="district.value" [nzLabel]="district.text"></nz-option>
+          </nz-select>
         </nz-form-control>
       </nz-form-item>
   
       <nz-form-item>
         <nz-form-label nzFor="wardId">Xã/Phường</nz-form-label>
         <nz-form-control  >
-          <input nz-input formControlName="wardId" id="wardId" placeholder="Nhập xã/phường" />
+          <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Select ward" formControlName="wardId" id="wardId">
+            <nz-option *ngFor="let ward of lstWards" [nzValue]="ward.value" [nzLabel]="ward.text"></nz-option>
+          </nz-select>
         </nz-form-control>
       </nz-form-item>
   

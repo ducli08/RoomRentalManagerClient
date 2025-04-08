@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CreateOrEditUserDto, ServiceProxy } from '../../shared/service.proxies';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -7,6 +7,8 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-create-users',
@@ -14,12 +16,14 @@ import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
   styleUrls: ['./createusers.component.css'],
   imports: [ReactiveFormsModule, NzFormItemComponent, NzFormLabelComponent,
      NzFormControlComponent, NzModalModule, NzInputModule, NzButtonModule,
-     NzDatePickerModule],
+     NzDatePickerModule, NzSelectModule, CommonModule],
   standalone: true,
 })
-export class CreateUsersComponent {
+export class CreateUsersComponent implements OnInit {
   createUserForm: FormGroup;
-
+  lstProvinces: any[] = [];
+  lstDistricts: any[] = [];
+  lstWards: any[] = [];
   constructor(private fb: FormBuilder, private serviceProxy: ServiceProxy) {
     this.createUserForm = this.fb.group({
       name: ['', Validators.required],
@@ -46,5 +50,16 @@ export class CreateUsersComponent {
         this.createUserForm.reset();
       });
     }
+  }
+  ngOnInit(): void {
+    this.serviceProxy.getAllProvince().subscribe(provinces => {
+      this.lstProvinces = provinces;
+    });
+    this.serviceProxy.getAllDistrict(undefined).subscribe(districts => {
+      this.lstDistricts = districts;
+    });
+    this.serviceProxy.getAllWard(undefined).subscribe(wards => {
+      this.lstWards = wards;
+    });
   }
 }

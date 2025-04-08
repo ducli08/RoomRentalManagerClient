@@ -182,6 +182,190 @@ export class ServiceProxy {
         }
         return _observableOf<UserDtoPagedResultDto>(null as any);
     }
+
+    /**
+     * @return Success
+     */
+    getAllProvince(): Observable<SelectListItem[]> {
+        let url_ = this.baseUrl + "/api/User/getAllProvince";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllProvince(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllProvince(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SelectListItem[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SelectListItem[]>;
+        }));
+    }
+
+    protected processGetAllProvince(response: HttpResponseBase): Observable<SelectListItem[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SelectListItem.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SelectListItem[]>([]);
+    }
+
+    /**
+     * @param provinceCode (optional) 
+     * @return Success
+     */
+    getAllDistrict(provinceCode: string | undefined): Observable<SelectListItem[]> {
+        let url_ = this.baseUrl + "/api/User/getAllDistrict?";
+        if (provinceCode === null)
+            throw new Error("The parameter 'provinceCode' cannot be null.");
+        else if (provinceCode !== undefined)
+            url_ += "provinceCode=" + encodeURIComponent("" + provinceCode) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllDistrict(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllDistrict(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SelectListItem[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SelectListItem[]>;
+        }));
+    }
+
+    protected processGetAllDistrict(response: HttpResponseBase): Observable<SelectListItem[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SelectListItem.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SelectListItem[]>([]);
+    }
+
+    /**
+     * @param districtCode (optional) 
+     * @return Success
+     */
+    getAllWard(districtCode: string | undefined): Observable<SelectListItem[]> {
+        let url_ = this.baseUrl + "/api/User/getAllWard?";
+        if (districtCode === null)
+            throw new Error("The parameter 'districtCode' cannot be null.");
+        else if (districtCode !== undefined)
+            url_ += "districtCode=" + encodeURIComponent("" + districtCode) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllWard(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllWard(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SelectListItem[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SelectListItem[]>;
+        }));
+    }
+
+    protected processGetAllWard(response: HttpResponseBase): Observable<SelectListItem[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SelectListItem.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SelectListItem[]>([]);
+    }
 }
 
 export class CreateOrEditUserDto implements ICreateOrEditUserDto {
@@ -318,6 +502,98 @@ export interface IPagedRequestDto {
     search?: string | undefined;
     sortBy?: string | undefined;
     sortOrder?: string | undefined;
+}
+
+export class SelectListGroup implements ISelectListGroup {
+    disabled?: boolean;
+    name?: string | undefined;
+
+    constructor(data?: ISelectListGroup) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.disabled = _data["disabled"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): SelectListGroup {
+        data = typeof data === 'object' ? data : {};
+        let result = new SelectListGroup();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["disabled"] = this.disabled;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface ISelectListGroup {
+    disabled?: boolean;
+    name?: string | undefined;
+}
+
+export class SelectListItem implements ISelectListItem {
+    disabled?: boolean;
+    group?: SelectListGroup;
+    selected?: boolean;
+    text?: string | undefined;
+    value?: string | undefined;
+
+    constructor(data?: ISelectListItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.disabled = _data["disabled"];
+            this.group = _data["group"] ? SelectListGroup.fromJS(_data["group"]) : <any>undefined;
+            this.selected = _data["selected"];
+            this.text = _data["text"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): SelectListItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new SelectListItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["disabled"] = this.disabled;
+        data["group"] = this.group ? this.group.toJSON() : <any>undefined;
+        data["selected"] = this.selected;
+        data["text"] = this.text;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface ISelectListItem {
+    disabled?: boolean;
+    group?: SelectListGroup;
+    selected?: boolean;
+    text?: string | undefined;
+    value?: string | undefined;
 }
 
 export class UserDto implements IUserDto {
