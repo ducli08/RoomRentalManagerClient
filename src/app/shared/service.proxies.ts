@@ -382,6 +382,8 @@ export class CreateOrEditUserDto implements ICreateOrEditUserDto {
     dateOfBirth?: Date;
     gender?: string | undefined;
     bikeId?: string | undefined;
+    phoneNumber?: string | undefined;
+    password?: string | undefined;
 
     constructor(data?: ICreateOrEditUserDto) {
         if (data) {
@@ -407,6 +409,8 @@ export class CreateOrEditUserDto implements ICreateOrEditUserDto {
             this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
             this.gender = _data["gender"];
             this.bikeId = _data["bikeId"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.password = _data["password"];
         }
     }
 
@@ -432,6 +436,8 @@ export class CreateOrEditUserDto implements ICreateOrEditUserDto {
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["gender"] = this.gender;
         data["bikeId"] = this.bikeId;
+        data["phoneNumber"] = this.phoneNumber;
+        data["password"] = this.password;
         return data;
     }
 }
@@ -450,6 +456,8 @@ export interface ICreateOrEditUserDto {
     dateOfBirth?: Date;
     gender?: string | undefined;
     bikeId?: string | undefined;
+    phoneNumber?: string | undefined;
+    password?: string | undefined;
 }
 
 export class PagedRequestDto implements IPagedRequestDto {
@@ -609,6 +617,7 @@ export class UserDto implements IUserDto {
     dateOfBirth?: Date;
     gender?: string | undefined;
     bikeId?: string | undefined;
+    phoneNumber?: string | undefined;
 
     constructor(data?: IUserDto) {
         if (data) {
@@ -633,6 +642,7 @@ export class UserDto implements IUserDto {
             this.dateOfBirth = _data["dateOfBirth"] ? new Date(_data["dateOfBirth"].toString()) : <any>undefined;
             this.gender = _data["gender"];
             this.bikeId = _data["bikeId"];
+            this.phoneNumber = _data["phoneNumber"];
         }
     }
 
@@ -657,6 +667,7 @@ export class UserDto implements IUserDto {
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toISOString() : <any>undefined;
         data["gender"] = this.gender;
         data["bikeId"] = this.bikeId;
+        data["phoneNumber"] = this.phoneNumber;
         return data;
     }
 }
@@ -674,6 +685,7 @@ export interface IUserDto {
     dateOfBirth?: Date;
     gender?: string | undefined;
     bikeId?: string | undefined;
+    phoneNumber?: string | undefined;
 }
 
 export class UserDtoPagedResultDto implements IUserDtoPagedResultDto {

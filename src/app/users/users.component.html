@@ -61,7 +61,7 @@
       <td>{{ data.address }}</td>
       <td>{{ data.idCard }}</td>
       <td>{{ data.job }}</td>
-      <td>{{ data.dateOfBirth }}</td>
+      <td>{{ data.dateOfBirth | date: 'dd/MM/yyyy' }}</td>
       <td>{{ data.gender }}</td>
       <td>{{ data.bikeId }}</td>
     </tr>

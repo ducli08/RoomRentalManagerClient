@@ -21,9 +21,6 @@ import { CommonModule } from '@angular/common';
 })
 export class CreateUsersComponent implements OnInit {
   createUserForm: FormGroup;
-  lstProvinces: any[] = [];
-  lstDistricts: any[] = [];
-  lstWards: any[] = [];
   constructor(private fb: FormBuilder, private serviceProxy: ServiceProxy) {
     this.createUserForm = this.fb.group({
       name: ['', Validators.required],
@@ -37,12 +34,13 @@ export class CreateUsersComponent implements OnInit {
       dateOfBirth: ['', Validators.required],
       gender: ['', Validators.required],
       roleGroupId: ['', Validators.required],
-      bikeId: ['', Validators.required]
+      bikeId: ['', Validators.required],
+      password: ['', Validators.required],
+      phoneNumber: ['', Validators.required]
     });
   }
 
   onSubmit(): void {
-    debugger
     if (this.createUserForm.valid) {
       const userDto: CreateOrEditUserDto = this.createUserForm.value;
       this.serviceProxy.createOrEditUser(userDto).subscribe(() => {
@@ -52,14 +50,6 @@ export class CreateUsersComponent implements OnInit {
     }
   }
   ngOnInit(): void {
-    this.serviceProxy.getAllProvince().subscribe(provinces => {
-      this.lstProvinces = provinces;
-    });
-    this.serviceProxy.getAllDistrict(undefined).subscribe(districts => {
-      this.lstDistricts = districts;
-    });
-    this.serviceProxy.getAllWard(undefined).subscribe(wards => {
-      this.lstWards = wards;
-    });
+    
   }
 }

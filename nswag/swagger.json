@@ -300,6 +300,14 @@
           "bikeId": {
             "type": "string",
             "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -414,6 +422,10 @@
             "nullable": true
           },
           "bikeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
             "type": "string",
             "nullable": true
           }

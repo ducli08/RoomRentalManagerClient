@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { PagedRequestDto, ServiceProxy, UserDto } from '../shared/service.proxies';
 import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
 import { CreateUsersComponent } from './create/createusers.component';
+import { CategoryCacheService } from '../shared/category-cache.service';
 export interface Data {
   id: number;
   name: string;
@@ -22,7 +23,7 @@ export interface Data {
 }
 @Component({
   selector: 'app-users',
-  imports: [NzTableModule,NzButtonModule, CommonModule, NzModalModule],
+  imports: [NzTableModule,NzButtonModule, CommonModule, NzModalModule, CategoryCacheService],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
   standalone: true
@@ -39,7 +40,10 @@ export class UsersComponent implements OnInit{
   total = 0;
   pageIndex = 1;
   pageSize = 10;
-  constructor(private _serviceProxy: ServiceProxy, private modalService: NzModalService) {}
+  lstProvinces: any[] = [];
+  lstDistricts: any[] = [];
+  lstWards: any[] = [];
+  constructor(private _serviceProxy: ServiceProxy, private modalService: NzModalService, private memoryCache: CategoryCacheService) {}
   updateCheckedSet(id: number, checked: boolean): void {
     if (checked) {
       this.setOfCheckedId.add(id);
@@ -93,6 +97,15 @@ export class UsersComponent implements OnInit{
     this.userRequestDto.sortBy = "";
     this.userRequestDto.sortOrder = "";
     this.getUsers();
+    this._serviceProxy.getAllProvince().subscribe(provinces => {
+      this.lstProvinces = provinces;
+    });
+    this._serviceProxy.getAllDistrict(undefined).subscribe(districts => {
+      this.lstDistricts = districts;
+    });
+    this._serviceProxy.getAllWard(undefined).subscribe(wards => {
+      this.lstWards = wards;
+    });
   }
 
   getUsers(): void{
