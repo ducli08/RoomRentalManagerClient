@@ -265,15 +265,15 @@
             "type": "string",
             "nullable": true
           },
-          "provinceId": {
+          "provinceCode": {
             "type": "string",
             "nullable": true
           },
-          "districtId": {
+          "districtCode": {
             "type": "string",
             "nullable": true
           },
-          "wardId": {
+          "wardCode": {
             "type": "string",
             "nullable": true
           },
@@ -389,17 +389,17 @@
             "type": "string",
             "nullable": true
           },
-          "provinceId": {
-            "type": "integer",
-            "format": "int64"
+          "provinceCode": {
+            "type": "string",
+            "nullable": true
           },
-          "districtId": {
-            "type": "integer",
-            "format": "int64"
+          "districtCode": {
+            "type": "string",
+            "nullable": true
           },
-          "wardId": {
-            "type": "integer",
-            "format": "int64"
+          "wardCode": {
+            "type": "string",
+            "nullable": true
           },
           "address": {
             "type": "string",

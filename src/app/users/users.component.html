@@ -1,11 +1,6 @@
 <div class="send-request">
-  <button
-    nz-button
-    nzType="primary"
-    [disabled]="setOfCheckedId.size === 0"
-    [nzLoading]="loading"
-    (click)="sendRequest()"
-  >
+  <button nz-button nzType="primary" [disabled]="setOfCheckedId.size === 0" [nzLoading]="loading"
+    (click)="sendRequest()">
     Send Request
   </button>
   <span>Selected {{ setOfCheckedId.size }} items</span>
@@ -13,57 +8,46 @@
 <div>
   <button nz-button nzType="primary" (click)="openCreateUserModal()">Tạo mới người dùng</button>
 </div>
-<nz-table
-  #rowSelectionTable
-  nzShowPagination
-  nzShowSizeChanger
-  [nzData]="lstUser"
-  [nzTotal]="total"
-  [nzPageSize]="pageSize"
-  [nzPageIndex]="pageIndex"
-  [nzLoading]="loading"
-  (nzPageIndexChange)="onPageChange($event)"
-  (nzPageSizeChange)="onPageSizeChange($event)"
->
+<nz-table #rowSelectionTable nzShowPagination nzShowSizeChanger [nzData]="lstUser" [nzTotal]="total"
+  [nzPageSize]="pageSize" [nzPageIndex]="pageIndex" [nzLoading]="loading" (nzPageIndexChange)="onPageChange($event)"
+  (nzPageSizeChange)="onPageSizeChange($event)">
   <thead>
     <tr>
-      <th
-        [nzChecked]="checked"
-        [nzIndeterminate]="indeterminate"
-        nzLabel="Select all"
-        (nzCheckedChange)="onAllChecked($event)"
-      ></th>
+      <th [nzChecked]="checked" [nzIndeterminate]="indeterminate" nzLabel="Select all"
+        (nzCheckedChange)="onAllChecked($event)"></th>
       <th>Tên</th>
       <th>Email</th>
       <th>Tỉnh/TP</th>
-      <th>Quận/Huyện</th> 
-      <th>Xã/Phường</th> 
-      <th>Địa chỉ</th> 
-      <th>Số CCCD</th> 
-      <th>Nghề nghiệp</th> 
-      <th>Ngày tháng năm sinh</th> 
-      <th>Giới tính</th> 
-      <th>Phương tiện</th> 
+      <th>Quận/Huyện</th>
+      <th>Xã/Phường</th>
+      <th>Địa chỉ</th>
+      <th>Số CCCD</th>
+      <th>Nghề nghiệp</th>
+      <th>Ngày tháng năm sinh</th>
+      <th>Giới tính</th>
+      <th>Phương tiện</th>
+      <th>Thao tác</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let data of rowSelectionTable.data; trackBy: trackData">
-      <td
-        [nzChecked]="data.id !== undefined && setOfCheckedId.has(data.id)"
+      <td [nzChecked]="data.id !== undefined && setOfCheckedId.has(data.id)"
         [nzLabel]="data.name !== undefined ? data.name : null"
-        (nzCheckedChange)="onItemChecked(data.id !== undefined ? data.id : 0, $event)"
-      ></td>
+        (nzCheckedChange)="onItemChecked(data.id !== undefined ? data.id : 0, $event)"></td>
       <td>{{ data.name }}</td>
       <td>{{ data.email }}</td>
-      <td>{{ data.provinceId }}</td>
-      <td>{{ data.districtId }}</td>
-      <td>{{ data.wardId }}</td>
+      <td>{{ getProvinceName(data.provinceCode) }}</td>
+      <td>{{ getDistrictName(data.districtCode) }}</td>
+      <td>{{ getWardName(data.wardCode) }}</td>
       <td>{{ data.address }}</td>
       <td>{{ data.idCard }}</td>
       <td>{{ data.job }}</td>
       <td>{{ data.dateOfBirth | date: 'dd/MM/yyyy' }}</td>
       <td>{{ data.gender }}</td>
       <td>{{ data.bikeId }}</td>
+      <td>
+        <nz-icon nzType="edit" nzTheme="outline" (click)="openEditUserModal(data)"/>
+      </td>
     </tr>
   </tbody>
 </nz-table>

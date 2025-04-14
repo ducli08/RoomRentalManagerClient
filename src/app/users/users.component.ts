@@ -1,11 +1,14 @@
-import { Component ,OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
-import { PagedRequestDto, ServiceProxy, UserDto } from '../shared/service.proxies';
+import { PagedRequestDto, SelectListItem, ServiceProxy, UserDto } from '../shared/service.proxies';
 import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
 import { CreateUsersComponent } from './create/createusers.component';
 import { CategoryCacheService } from '../shared/category-cache.service';
+import { forkJoin, of } from 'rxjs';
+import { EditUsersComponent } from './edit/editusers.component';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 export interface Data {
   id: number;
   name: string;
@@ -23,27 +26,27 @@ export interface Data {
 }
 @Component({
   selector: 'app-users',
-  imports: [NzTableModule,NzButtonModule, CommonModule, NzModalModule, CategoryCacheService],
+  imports: [NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzIconModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
   standalone: true
 })
-export class UsersComponent implements OnInit{
+export class UsersComponent implements OnInit {
   checked = false;
   loading = false;
   indeterminate = false;
   listOfData: readonly Data[] = [];
   lstUser: readonly UserDto[] = [];
-  userRequestDto : PagedRequestDto = new PagedRequestDto();
+  userRequestDto: PagedRequestDto = new PagedRequestDto();
   listOfCurrentPageData: readonly UserDto[] = [];
   setOfCheckedId = new Set<number>();
   total = 0;
   pageIndex = 1;
   pageSize = 10;
-  lstProvinces: any[] = [];
-  lstDistricts: any[] = [];
-  lstWards: any[] = [];
-  constructor(private _serviceProxy: ServiceProxy, private modalService: NzModalService, private memoryCache: CategoryCacheService) {}
+  lstProvinces: SelectListItem[] = [];
+  lstDistricts: SelectListItem[] = [];
+  lstWards: SelectListItem[] = [];
+  constructor(private _serviceProxy: ServiceProxy, private modalService: NzModalService, private memoryCache: CategoryCacheService) { }
   updateCheckedSet(id: number, checked: boolean): void {
     if (checked) {
       this.setOfCheckedId.add(id);
@@ -96,25 +99,53 @@ export class UsersComponent implements OnInit{
     this.userRequestDto.search = "";
     this.userRequestDto.sortBy = "";
     this.userRequestDto.sortOrder = "";
-    this.getUsers();
-    this._serviceProxy.getAllProvince().subscribe(provinces => {
-      this.lstProvinces = provinces;
-    });
-    this._serviceProxy.getAllDistrict(undefined).subscribe(districts => {
-      this.lstDistricts = districts;
-    });
-    this._serviceProxy.getAllWard(undefined).subscribe(wards => {
-      this.lstWards = wards;
-    });
+    const cachedProvinces = this.memoryCache.get<SelectListItem[]>('provinces');
+    const cachedDistricts = this.memoryCache.get<SelectListItem[]>('districts');
+    const cachedWards = this.memoryCache.get<SelectListItem[]>('wards');
+    const provinceObservable = cachedProvinces ? of(cachedProvinces) : this._serviceProxy.getAllProvince();
+    const districtObservable = cachedDistricts ? of(cachedDistricts) : this._serviceProxy.getAllDistrict(undefined);
+    const wardObservable = cachedWards ? of(cachedWards) : this._serviceProxy.getAllWard(undefined);
+    forkJoin([provinceObservable, districtObservable, wardObservable])
+      .subscribe(([provinces, districts, wards]) => {
+        this.lstProvinces = provinces ? provinces : [];
+        this.lstDistricts = districts ? districts : [];
+        this.lstWards = wards ? wards : [];
+        if (!cachedProvinces) this.memoryCache.set('provinces', provinces);
+        if (!cachedDistricts) this.memoryCache.set('districts', districts);
+        if (!cachedWards) this.memoryCache.set('wards', wards);
+        this.getUsers();
+      },
+        error => {
+          console.error('Error fetching data:', error);
+        }
+      );
   }
 
-  getUsers(): void{
-    this._serviceProxy.editingPopupRead(this.userRequestDto).subscribe(response =>{
+  getUsers(): void {
+    this._serviceProxy.editingPopupRead(this.userRequestDto).subscribe(response => {
       this.lstUser = response.listItem ? response.listItem : [];
       this.total = response.totalCount ? response.totalCount : 0;
     }, error => {
       console.error('Error fetching users:', error);
     });
+  }
+
+  getProvinceName(provinceId: string | undefined): string {
+    if (!provinceId) return '';
+    const province = this.lstProvinces.find(p => p.value === provinceId.toString());
+    return province ? province.text ?? '' : '';
+  }
+
+  getDistrictName(districtId: string | undefined): string {
+    if (!districtId) return '';
+    const district = this.lstDistricts.find(d => d.value === districtId.toString());
+    return district ? district.text ?? '' : '';
+  }
+
+  getWardName(wardId: string | undefined): string {
+    if (!wardId) return '';
+    const ward = this.lstWards.find(w => w.value === wardId.toString());
+    return ward ? ward.text ?? '' : '';
   }
 
   trackData(index: number, item: any): any {
@@ -127,5 +158,32 @@ export class UsersComponent implements OnInit{
       nzContent: CreateUsersComponent,
       nzFooter: null, // Bạn có thể thêm footer tùy chỉnh nếu cần
     });
+  }
+
+  openEditUserModal(user: UserDto): void {
+    this.modalService.create<EditUsersComponent, { userData: any }, string>({
+      nzTitle: 'Chỉnh sửa người dùng',
+      nzContent: EditUsersComponent,
+      nzData: { userData: user },
+      nzWidth: '600px',
+      nzStyle: { height: '80vh' }, 
+      nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(80vh - 55px)' }, 
+      nzFooter: [
+        {
+          label: 'Hủy',
+          onClick: () => this.modalService.closeAll(), 
+        },
+        {
+          label: 'Lưu',
+          type: 'primary',
+          disabled: (componentInstance) => !componentInstance?.editUserForm.valid, // Custom disabled
+          onClick: (componentInstance) => {
+            if (componentInstance) {
+              componentInstance.onSubmit(); // Gọi hàm submit trong component con
+            }
+          },
+        },
+      ],
+    })
   }
 }
