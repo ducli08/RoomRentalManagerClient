@@ -156,7 +156,25 @@ export class UsersComponent implements OnInit {
     this.modalService.create({
       nzTitle: 'Tạo người dùng mới',
       nzContent: CreateUsersComponent,
-      nzFooter: null, // Bạn có thể thêm footer tùy chỉnh nếu cần
+      nzWidth: '600px',
+      nzStyle: { height: '70vh' },
+      nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' },
+      nzFooter: [
+        {
+          label: 'Hủy',
+          onClick: () => this.modalService.closeAll(), 
+        },
+        {
+          label: 'Lưu',
+          type: 'primary',
+          disabled: (componentInstance) => !componentInstance?.createUserForm.valid, // Custom disabled
+          onClick: (componentInstance) => {
+            if (componentInstance) {
+              componentInstance.onSubmit(); // Gọi hàm submit trong component con
+            }
+          },
+        },
+      ]
     });
   }
 
@@ -166,8 +184,8 @@ export class UsersComponent implements OnInit {
       nzContent: EditUsersComponent,
       nzData: { userData: user },
       nzWidth: '600px',
-      nzStyle: { height: '80vh' }, 
-      nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(80vh - 55px)' }, 
+      nzStyle: { height: '70vh' }, 
+      nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' }, 
       nzFooter: [
         {
           label: 'Hủy',

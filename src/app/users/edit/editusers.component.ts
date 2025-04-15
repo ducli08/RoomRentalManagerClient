@@ -55,7 +55,6 @@ export class EditUsersComponent implements OnInit {
     }
   }
   ngOnInit(): void {
-    debugger
     this.lstDistricts = this.memoryCache.get('districts') || [];
     this.lstProvinces = this.memoryCache.get('provinces') || [];
     this.lstWards = this.memoryCache.get('wards') || [];
