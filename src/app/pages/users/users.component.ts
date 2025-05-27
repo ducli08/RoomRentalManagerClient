@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
-import { PagedRequestDto, SelectListItem, ServiceProxy, UserDto } from '../shared/service.proxies';
+import { PagedRequestDto, SelectListItem, ServiceProxy, UserDto } from '../../shared/service.proxies';
 import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
 import { CreateUsersComponent } from './create/createusers.component';
-import { CategoryCacheService } from '../shared/category-cache.service';
+import { CategoryCacheService } from '../../shared/category-cache.service';
 import { forkJoin, of } from 'rxjs';
-import { EditUsersComponent } from './edit/editusers.component';
+import { EditUsersComponent } from './edit/editusers.component'; 
 import { NzIconModule } from 'ng-zorro-antd/icon';
 export interface Data {
   id: number;

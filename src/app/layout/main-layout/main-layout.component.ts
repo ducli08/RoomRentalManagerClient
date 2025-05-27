@@ -5,11 +5,11 @@ import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-main-layout',
   imports: [RouterLink, RouterOutlet, NzIconModule, NzLayoutModule, NzMenuModule],
-  templateUrl: './layout/main-layout/main-layout.component.html',
-  styleUrl: './app.component.css'
+  templateUrl: './layout/main-layout.component.html',
+  styleUrl: './layout/main-layout.component.css'
 })
-export class AppComponent {
+export class MainLayoutComponent {
   isCollapsed = false;
 }
