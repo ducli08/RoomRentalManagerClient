@@ -1,13 +1,31 @@
-<div class="send-request">
-  <button nz-button nzType="primary" [disabled]="setOfCheckedId.size === 0" [nzLoading]="loading"
-    (click)="sendRequest()">
-    Send Request
-  </button>
-  <span>Selected {{ setOfCheckedId.size }} items</span>
-</div>
+<form nz-form>
+  <ng-container *ngFor="let row of filterPerRows">
+    <div nz-row>
+      <nz-form-item *ngFor="let field of row" nz-col nzSpan="6">
+        <nz-form-label nz-col nzSpan="10">{{ field.label }}</nz-form-label>
+        <nz-form-control nz-col nzSpan="20">
+          <ng-container [ngSwitch]="field.type">
+            <input *ngSwitchCase="'text'" nz-input [(ngModel)]="userFilterDto[field.key]" [name]="field.key"
+              [placeholder]="field.placeholder ?? null" />
+            <nz-select *ngSwitchCase="'select'" [(ngModel)]="userFilterDto[field.key]" [name]="field.key"
+              [nzPlaceHolder]="field.placeholder ?? null" nzShowSearch nzAllowClear>
+              <nz-option *ngFor="let opt of field.options ? field.options() : []" [nzValue]="opt.value ?? null"
+                [nzLabel]="opt.text ?? null"></nz-option>
+            </nz-select>
+            <nz-date-picker style="width: 100%;" *ngSwitchCase="'datetime'" [(ngModel)]="userFilterDto[field.key]" 
+              id ="dateOfBirth" [name]="field.key"></nz-date-picker>
+          </ng-container>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </ng-container>
+  <button nz-button nzType="primary" (click)="getUsers()" style="align-self: flex-end;"><nz-icon nzType="search" nzTheme="outline" />Tìm kiếm</button>
+</form>
+<br>
 <div>
-  <button nz-button nzType="primary" (click)="openCreateUserModal()">Tạo mới người dùng</button>
+  <button nz-button nzType="primary" (click)="openCreateUserModal()"><nz-icon nzType="user-add" nzTheme="outline" />Tạo mới người dùng</button>
 </div>
+<br>
 <nz-table #rowSelectionTable nzShowPagination nzShowSizeChanger [nzData]="lstUser" [nzTotal]="total"
   [nzPageSize]="pageSize" [nzPageIndex]="pageIndex" [nzLoading]="loading" (nzPageIndexChange)="onPageChange($event)"
   (nzPageSizeChange)="onPageSizeChange($event)">
@@ -46,7 +64,8 @@
       <td>{{ data.gender }}</td>
       <td>{{ data.bikeId }}</td>
       <td>
-        <nz-icon nzType="edit" nzTheme="outline" (click)="openEditUserModal(data)"/>
+        <nz-icon nzType="edit" nzTheme="outline" (click)="openEditUserModal(data)" />
+        <nz-icon nzType="delete" nzTheme="outline" (click)="openDeleteUserModal(data)" />
       </td>
     </tr>
   </tbody>

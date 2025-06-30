@@ -10,6 +10,62 @@
     }
   ],
   "paths": {
+    "/api/Login": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "operationId": "Login",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rememberMe",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/getAllAsync": {
       "get": {
         "tags": [
@@ -65,17 +121,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PagedRequestDto"
+                "$ref": "#/components/schemas/UserFilterDtoPagedRequestDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/PagedRequestDto"
+                "$ref": "#/components/schemas/UserFilterDtoPagedRequestDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/PagedRequestDto"
+                "$ref": "#/components/schemas/UserFilterDtoPagedRequestDto"
               }
             }
           }
@@ -240,6 +296,86 @@
           }
         }
       }
+    },
+    "/api/User/getAllRoleGroup": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "getAllRoleGroup",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SelectListItem"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SelectListItem"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SelectListItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/User/deleteUser": {
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -311,29 +447,20 @@
           }
         }
       },
-      "PagedRequestDto": {
+      "LoginResponseDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "page": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "search": {
+          "message": {
             "type": "string",
             "nullable": true
           },
-          "sortBy": {
+          "accessToken": {
             "type": "string",
             "nullable": true
           },
-          "sortOrder": {
-            "type": "string",
-            "nullable": true
+          "user": {
+            "$ref": "#/components/schemas/UserDto"
           }
         }
       },
@@ -428,6 +555,10 @@
           "phoneNumber": {
             "type": "string",
             "nullable": true
+          },
+          "roleGroupId": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -445,6 +576,70 @@
           "totalCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "UserFilterDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "nameFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "provinceCodeFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "districtCodeFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "wardCodeFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "addressFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "idCardFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "UserFilterDtoPagedRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortOrder": {
+            "type": "string",
+            "nullable": true
+          },
+          "filter": {
+            "$ref": "#/components/schemas/UserFilterDto"
           }
         }
       }

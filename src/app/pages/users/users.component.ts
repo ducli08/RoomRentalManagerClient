@@ -2,13 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
-import { PagedRequestDto, SelectListItem, ServiceProxy, UserDto } from '../../shared/service.proxies';
+import { UserFilterDtoPagedRequestDto, SelectListItem, ServiceProxy, UserDto, UserFilterDto } from '../../shared/service.proxies';
 import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
 import { CreateUsersComponent } from './create/createusers.component';
 import { CategoryCacheService } from '../../shared/category-cache.service';
 import { forkJoin, of } from 'rxjs';
-import { EditUsersComponent } from './edit/editusers.component'; 
-import { NzIconModule } from 'ng-zorro-antd/icon';
+import { EditUsersComponent } from './edit/editusers.component';
+import { NzIconModule, NZ_ICONS } from 'ng-zorro-antd/icon';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { FormsModule } from '@angular/forms';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { UserAddOutline } from '@ant-design/icons-angular/icons';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+const icons = [UserAddOutline]
 export interface Data {
   id: number;
   name: string;
@@ -26,10 +34,15 @@ export interface Data {
 }
 @Component({
   selector: 'app-users',
-  imports: [NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzIconModule],
+  imports: [NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzIconModule, NzFormModule,
+     FormsModule, NzSelectModule, CreateUsersComponent, EditUsersComponent, NzInputModule, NzGridModule,
+     NzDatePickerModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
-  standalone: true
+  standalone: true,
+  providers: [
+    { provide: NZ_ICONS, useValue: icons }
+  ],
 })
 export class UsersComponent implements OnInit {
   checked = false;
@@ -37,8 +50,8 @@ export class UsersComponent implements OnInit {
   indeterminate = false;
   listOfData: readonly Data[] = [];
   lstUser: readonly UserDto[] = [];
-  userRequestDto: PagedRequestDto = new PagedRequestDto();
-  listOfCurrentPageData: readonly UserDto[] = [];
+  userFilterDto: UserFilterDto = new UserFilterDto();
+  userRequestDto: UserFilterDtoPagedRequestDto = new UserFilterDtoPagedRequestDto();
   setOfCheckedId = new Set<number>();
   total = 0;
   pageIndex = 1;
@@ -46,6 +59,20 @@ export class UsersComponent implements OnInit {
   lstProvinces: SelectListItem[] = [];
   lstDistricts: SelectListItem[] = [];
   lstWards: SelectListItem[] = [];
+  filterPerRows: Array<Array<{
+    label: string;
+    key: keyof UserFilterDto;
+    type: string;
+    options?: () => SelectListItem[];
+    placeholder?: string;
+  }>> = [];
+  controlRequestArray: Array<{
+    label: string;
+    key: keyof UserFilterDto;
+    type: string;
+    options?: () => SelectListItem[];
+    placeholder?: string;
+  }> = [];
   constructor(private _serviceProxy: ServiceProxy, private modalService: NzModalService, private memoryCache: CategoryCacheService) { }
   updateCheckedSet(id: number, checked: boolean): void {
     if (checked) {
@@ -66,7 +93,7 @@ export class UsersComponent implements OnInit {
     this.getUsers();
   }
   refreshCheckedStatus(): void {
-    const listOfEnabledData = this.listOfCurrentPageData;
+    const listOfEnabledData = this.lstUser;
     this.checked = listOfEnabledData.every(({ id }) => id !== undefined && this.setOfCheckedId.has(id));
     this.indeterminate = listOfEnabledData.some(({ id }) => id !== undefined && this.setOfCheckedId.has(id)) && !this.checked;
   }
@@ -77,26 +104,22 @@ export class UsersComponent implements OnInit {
   }
 
   onAllChecked(checked: boolean): void {
-    this.listOfCurrentPageData
+    this.lstUser
       .forEach(({ id }) => id !== undefined && this.updateCheckedSet(id, checked));
     this.refreshCheckedStatus();
   }
 
-  sendRequest(): void {
-    this.loading = true;
-    const requestData = this.listOfData.filter(data => data.id !== undefined && this.setOfCheckedId.has(data.id));
-    console.log(requestData);
-    setTimeout(() => {
-      this.setOfCheckedId.clear();
-      this.refreshCheckedStatus();
-      this.loading = false;
-    }, 1000);
-  }
-
   ngOnInit(): void {
+    this.userFilterDto.addressFilter = "";
+    this.userFilterDto.nameFilter = "";
+    this.userFilterDto.emailFilter = "";
+    this.userFilterDto.idCardFilter = "";
+    this.userFilterDto.provinceCodeFilter = "";
+    this.userFilterDto.districtCodeFilter = "";
+    this.userFilterDto.wardCodeFilter = "";
+    this.userRequestDto.filter = this.userFilterDto;
     this.userRequestDto.page = this.pageIndex;
     this.userRequestDto.pageSize = this.pageSize;
-    this.userRequestDto.search = "";
     this.userRequestDto.sortBy = "";
     this.userRequestDto.sortOrder = "";
     const cachedProvinces = this.memoryCache.get<SelectListItem[]>('provinces');
@@ -105,6 +128,17 @@ export class UsersComponent implements OnInit {
     const provinceObservable = cachedProvinces ? of(cachedProvinces) : this._serviceProxy.getAllProvince();
     const districtObservable = cachedDistricts ? of(cachedDistricts) : this._serviceProxy.getAllDistrict(undefined);
     const wardObservable = cachedWards ? of(cachedWards) : this._serviceProxy.getAllWard(undefined);
+    this.controlRequestArray = [
+      { label: 'Tên', key: 'nameFilter', type: 'text', placeholder: 'Tên người dùng' },
+      { label: 'Tỉnh/thành', key: 'provinceCodeFilter', type: 'select', options: () => this.lstProvinces, placeholder: 'Chọn tỉnh/thành' },
+      { label: 'Quận/huyện', key: 'districtCodeFilter', type: 'select', options: () => this.lstDistricts, placeholder: 'Chọn quận/huyện' },
+      { label: 'Xã/phường', key: 'wardCodeFilter', type: 'select', options: () => this.lstWards, placeholder: 'Chọn xã/phường' },
+      { label: 'Địa chỉ đầy đủ', key: 'addressFilter', type: 'text', placeholder: 'Chọn địa chỉ đầy đủ' },
+      { label: 'Email', key: 'emailFilter', type: 'text', placeholder: 'Email người dùng' },
+      { label: 'CCCD/CMND', key: 'idCardFilter', type: 'text', placeholder: 'CCCD/CMND' },
+      { label: 'Ngày sinh', key: 'dateOfBirth', type: 'datetime', placeholder: 'Ngày sinh' },
+    ];
+    this.filterPerRows = this.chunkArray(this.controlRequestArray, 4);
     forkJoin([provinceObservable, districtObservable, wardObservable])
       .subscribe(([provinces, districts, wards]) => {
         this.lstProvinces = provinces ? provinces : [];
@@ -122,6 +156,7 @@ export class UsersComponent implements OnInit {
   }
 
   getUsers(): void {
+    this.userRequestDto.filter = this.userFilterDto;
     this._serviceProxy.editingPopupRead(this.userRequestDto).subscribe(response => {
       this.lstUser = response.listItem ? response.listItem : [];
       this.total = response.totalCount ? response.totalCount : 0;
@@ -162,7 +197,7 @@ export class UsersComponent implements OnInit {
       nzFooter: [
         {
           label: 'Hủy',
-          onClick: () => this.modalService.closeAll(), 
+          onClick: () => this.modalService.closeAll(),
         },
         {
           label: 'Lưu',
@@ -184,12 +219,12 @@ export class UsersComponent implements OnInit {
       nzContent: EditUsersComponent,
       nzData: { userData: user },
       nzWidth: '600px',
-      nzStyle: { height: '70vh' }, 
-      nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' }, 
+      nzStyle: { height: '70vh' },
+      nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' },
       nzFooter: [
         {
           label: 'Hủy',
-          onClick: () => this.modalService.closeAll(), 
+          onClick: () => this.modalService.closeAll(),
         },
         {
           label: 'Lưu',
@@ -203,5 +238,24 @@ export class UsersComponent implements OnInit {
         },
       ],
     })
+  }
+  openDeleteUserModal(user: UserDto): void {
+    this._serviceProxy.deleteUser(user.id).subscribe((res: any) => {
+      if (res) {
+        alert('Đã xoá người dùng thành công!');
+        this.getUsers();
+      }
+      else {
+        alert('Xoá người dùng thất bại!');
+      }
+    });
+  }
+
+  chunkArray<T>(array: T[], chunkSize: number): T[][] {
+    const result: T[][] = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      result.push(array.slice(i, i + chunkSize));
+    }
+    return result;
   }
 }
