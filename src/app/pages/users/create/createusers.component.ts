@@ -45,7 +45,6 @@ export class CreateUsersComponent implements OnInit {
   }
 
   onSubmit(): void {
-    debugger
     if (this.createUserForm.valid) {
       const userDto: CreateOrEditUserDto = this.createUserForm.value;
       this.serviceProxy.createOrEditUser(userDto).subscribe(() => {

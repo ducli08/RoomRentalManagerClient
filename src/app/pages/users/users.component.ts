@@ -14,9 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzGridModule } from 'ng-zorro-antd/grid';
-import { UserAddOutline } from '@ant-design/icons-angular/icons';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
-const icons = [UserAddOutline]
 export interface Data {
   id: number;
   name: string;
@@ -40,9 +38,6 @@ export interface Data {
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
   standalone: true,
-  providers: [
-    { provide: NZ_ICONS, useValue: icons }
-  ],
 })
 export class UsersComponent implements OnInit {
   checked = false;

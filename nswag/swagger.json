@@ -533,8 +533,8 @@
             "nullable": true
           },
           "idCard": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "nullable": true
           },
           "job": {
             "type": "string",

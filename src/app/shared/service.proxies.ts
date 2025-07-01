@@ -785,7 +785,7 @@ export class UserDto implements IUserDto {
     districtCode?: string | undefined;
     wardCode?: string | undefined;
     address?: string | undefined;
-    idCard?: number;
+    idCard?: string | undefined;
     job?: string | undefined;
     dateOfBirth?: Date;
     gender?: string | undefined;
@@ -856,7 +856,7 @@ export interface IUserDto {
     districtCode?: string | undefined;
     wardCode?: string | undefined;
     address?: string | undefined;
-    idCard?: number;
+    idCard?: string | undefined;
     job?: string | undefined;
     dateOfBirth?: Date;
     gender?: string | undefined;
