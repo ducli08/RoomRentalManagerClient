@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { CategoryCacheService } from '../../../shared/category-cache.service';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 
+
 @Component({
   selector: 'app-edit-users',
   templateUrl: './editusers.component.html',
@@ -41,7 +42,8 @@ export class EditUsersComponent implements OnInit {
       gender: ['', Validators.required],
       roleGroupId: ['', Validators.required],
       bikeId: ['', Validators.required],
-      phoneNumber: ['', Validators.required]
+      phoneNumber: ['', Validators.required],
+      password: ['', Validators.required],
     });
   }
 

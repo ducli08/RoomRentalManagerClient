@@ -1,0 +1,43 @@
+<div class="create-user">
+    <form nz-form [formGroup]="createRoomRentalForm" (ngSubmit)="onSubmit()">
+      <nz-form-item>
+        <nz-form-label nzFor="roomNumber">Số phòng</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="roomNumber" id="roomNumber" placeholder="Nhập số phòng" />
+        </nz-form-control>
+      </nz-form-item>
+  
+      <nz-form-item>
+        <nz-form-label nzFor="roomType">Loại phòng</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="roomType" id="roomType" placeholder="Nhập loại phòng" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzFor="statusRoom">Trạng thái phòng</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="statusRoom" id="statusRoom" placeholder="Nhập trạng thái phòng" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzFor="note">Ghi chú</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="note" id="note" placeholder="Nhập ghi chú" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzFor="area">Diện tích</nz-form-label>
+        <nz-form-control  >
+          <input nz-input formControlName="area" id="area" placeholder="Nhập diện tích" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-control  >
+          <input nz-input formControlName="email" id="email" placeholder="Nhập email" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>

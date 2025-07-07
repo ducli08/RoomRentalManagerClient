@@ -4,10 +4,10 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
 import { UserFilterDtoPagedRequestDto, SelectListItem, ServiceProxy, UserDto, UserFilterDto } from '../../shared/service.proxies';
 import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
-import { CreateUsersComponent } from './create/createusers.component';
+import { CreateUsersComponent } from './createusers/createusers.component';
 import { CategoryCacheService } from '../../shared/category-cache.service';
 import { forkJoin, of } from 'rxjs';
-import { EditUsersComponent } from './edit/editusers.component';
+import { EditUsersComponent } from './editusers/editusers.component';
 import { NzIconModule, NZ_ICONS } from 'ng-zorro-antd/icon';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { FormsModule } from '@angular/forms';
@@ -152,7 +152,7 @@ export class UsersComponent implements OnInit {
 
   getUsers(): void {
     this.userRequestDto.filter = this.userFilterDto;
-    this._serviceProxy.editingPopupRead(this.userRequestDto).subscribe(response => {
+    this._serviceProxy.getAllUser(this.userRequestDto).subscribe(response => {
       this.lstUser = response.listItem ? response.listItem : [];
       this.total = response.totalCount ? response.totalCount : 0;
     }, error => {

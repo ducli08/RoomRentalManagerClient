@@ -95,25 +95,86 @@ export class ServiceProxy {
     }
 
     /**
+     * @param body (optional) 
      * @return Success
      */
-    getAll(): Observable<void> {
-        let url_ = this.baseUrl + "/getAllAsync";
+    getAllRoomRental(body: RoomRentalFilterDtoPagedRequestDto | undefined): Observable<RoomRentalDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/RoomRental/getAllRoomRentalAsync";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAll(response_);
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllRoomRental(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetAll(response_ as any);
+                    return this.processGetAllRoomRental(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoomRentalDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoomRentalDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAllRoomRental(response: HttpResponseBase): Observable<RoomRentalDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoomRentalDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<RoomRentalDtoPagedResultDto>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    createOrEditRoomRental(body: CreateOrEditRoomRentalDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/RoomRental/createOrEditRoomRental";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateOrEditRoomRental(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateOrEditRoomRental(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -122,7 +183,7 @@ export class ServiceProxy {
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<void> {
+    protected processCreateOrEditRoomRental(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -197,8 +258,8 @@ export class ServiceProxy {
      * @param body (optional) 
      * @return Success
      */
-    editingPopupRead(body: UserFilterDtoPagedRequestDto | undefined): Observable<UserDtoPagedResultDto> {
-        let url_ = this.baseUrl + "/api/User/editingPopupRead";
+    getAllUser(body: UserFilterDtoPagedRequestDto | undefined): Observable<UserDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/User/getAllUserAsync";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -214,11 +275,11 @@ export class ServiceProxy {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processEditingPopupRead(response_);
+            return this.processGetAllUser(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processEditingPopupRead(response_ as any);
+                    return this.processGetAllUser(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<UserDtoPagedResultDto>;
                 }
@@ -227,7 +288,7 @@ export class ServiceProxy {
         }));
     }
 
-    protected processEditingPopupRead(response: HttpResponseBase): Observable<UserDtoPagedResultDto> {
+    protected processGetAllUser(response: HttpResponseBase): Observable<UserDtoPagedResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -495,7 +556,7 @@ export class ServiceProxy {
      * @param id (optional) 
      * @return Success
      */
-    deleteUser(id: number | undefined): Observable<boolean> {
+    deleteUser(id: number | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/User/deleteUser?";
         if (id === null)
             throw new Error("The parameter 'id' cannot be null.");
@@ -507,7 +568,6 @@ export class ServiceProxy {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Accept": "text/plain"
             })
         };
 
@@ -518,14 +578,14 @@ export class ServiceProxy {
                 try {
                     return this.processDeleteUser(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<boolean>;
+                    return _observableThrow(e) as any as Observable<void>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<boolean>;
+                return _observableThrow(response_) as any as Observable<void>;
         }));
     }
 
-    protected processDeleteUser(response: HttpResponseBase): Observable<boolean> {
+    protected processDeleteUser(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -534,19 +594,103 @@ export class ServiceProxy {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
-            return _observableOf(result200);
+            return _observableOf<void>(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<boolean>(null as any);
+        return _observableOf<void>(null as any);
     }
+}
+
+export class CreateOrEditRoomRentalDto implements ICreateOrEditRoomRentalDto {
+    id?: number | undefined;
+    roomNumber?: number;
+    roomType?: RoomType;
+    price?: number;
+    statusRoom?: RoomStatus;
+    note?: string | undefined;
+    area?: number;
+    imagesDescription?: number[] | undefined;
+    createdDate?: Date;
+    updatedDate?: Date;
+    creatorUser?: string | undefined;
+    lastUpdateUser?: string | undefined;
+
+    constructor(data?: ICreateOrEditRoomRentalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.roomNumber = _data["roomNumber"];
+            this.roomType = _data["roomType"];
+            this.price = _data["price"];
+            this.statusRoom = _data["statusRoom"];
+            this.note = _data["note"];
+            this.area = _data["area"];
+            if (Array.isArray(_data["imagesDescription"])) {
+                this.imagesDescription = [] as any;
+                for (let item of _data["imagesDescription"])
+                    this.imagesDescription!.push(item);
+            }
+            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
+            this.updatedDate = _data["updatedDate"] ? new Date(_data["updatedDate"].toString()) : <any>undefined;
+            this.creatorUser = _data["creatorUser"];
+            this.lastUpdateUser = _data["lastUpdateUser"];
+        }
+    }
+
+    static fromJS(data: any): CreateOrEditRoomRentalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateOrEditRoomRentalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["roomNumber"] = this.roomNumber;
+        data["roomType"] = this.roomType;
+        data["price"] = this.price;
+        data["statusRoom"] = this.statusRoom;
+        data["note"] = this.note;
+        data["area"] = this.area;
+        if (Array.isArray(this.imagesDescription)) {
+            data["imagesDescription"] = [];
+            for (let item of this.imagesDescription)
+                data["imagesDescription"].push(item);
+        }
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        data["updatedDate"] = this.updatedDate ? this.updatedDate.toISOString() : <any>undefined;
+        data["creatorUser"] = this.creatorUser;
+        data["lastUpdateUser"] = this.lastUpdateUser;
+        return data;
+    }
+}
+
+export interface ICreateOrEditRoomRentalDto {
+    id?: number | undefined;
+    roomNumber?: number;
+    roomType?: RoomType;
+    price?: number;
+    statusRoom?: RoomStatus;
+    note?: string | undefined;
+    area?: number;
+    imagesDescription?: number[] | undefined;
+    createdDate?: Date;
+    updatedDate?: Date;
+    creatorUser?: string | undefined;
+    lastUpdateUser?: string | undefined;
 }
 
 export class CreateOrEditUserDto implements ICreateOrEditUserDto {
@@ -685,6 +829,284 @@ export interface ILoginResponseDto {
     user?: UserDto;
 }
 
+export class RoomRentalDto implements IRoomRentalDto {
+    id?: number;
+    roomNumber?: number;
+    roomType?: RoomType;
+    price?: number;
+    statusRoom?: RoomStatus;
+    note?: string | undefined;
+    area?: number;
+    imagesDescription?: number[] | undefined;
+    createdDate?: Date;
+    updatedDate?: Date;
+    creatorUser?: string | undefined;
+    lastUpdateUser?: string | undefined;
+
+    constructor(data?: IRoomRentalDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.roomNumber = _data["roomNumber"];
+            this.roomType = _data["roomType"];
+            this.price = _data["price"];
+            this.statusRoom = _data["statusRoom"];
+            this.note = _data["note"];
+            this.area = _data["area"];
+            if (Array.isArray(_data["imagesDescription"])) {
+                this.imagesDescription = [] as any;
+                for (let item of _data["imagesDescription"])
+                    this.imagesDescription!.push(item);
+            }
+            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
+            this.updatedDate = _data["updatedDate"] ? new Date(_data["updatedDate"].toString()) : <any>undefined;
+            this.creatorUser = _data["creatorUser"];
+            this.lastUpdateUser = _data["lastUpdateUser"];
+        }
+    }
+
+    static fromJS(data: any): RoomRentalDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomRentalDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["roomNumber"] = this.roomNumber;
+        data["roomType"] = this.roomType;
+        data["price"] = this.price;
+        data["statusRoom"] = this.statusRoom;
+        data["note"] = this.note;
+        data["area"] = this.area;
+        if (Array.isArray(this.imagesDescription)) {
+            data["imagesDescription"] = [];
+            for (let item of this.imagesDescription)
+                data["imagesDescription"].push(item);
+        }
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        data["updatedDate"] = this.updatedDate ? this.updatedDate.toISOString() : <any>undefined;
+        data["creatorUser"] = this.creatorUser;
+        data["lastUpdateUser"] = this.lastUpdateUser;
+        return data;
+    }
+}
+
+export interface IRoomRentalDto {
+    id?: number;
+    roomNumber?: number;
+    roomType?: RoomType;
+    price?: number;
+    statusRoom?: RoomStatus;
+    note?: string | undefined;
+    area?: number;
+    imagesDescription?: number[] | undefined;
+    createdDate?: Date;
+    updatedDate?: Date;
+    creatorUser?: string | undefined;
+    lastUpdateUser?: string | undefined;
+}
+
+export class RoomRentalDtoPagedResultDto implements IRoomRentalDtoPagedResultDto {
+    listItem?: RoomRentalDto[] | undefined;
+    totalCount?: number;
+
+    constructor(data?: IRoomRentalDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["listItem"])) {
+                this.listItem = [] as any;
+                for (let item of _data["listItem"])
+                    this.listItem!.push(RoomRentalDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): RoomRentalDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomRentalDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.listItem)) {
+            data["listItem"] = [];
+            for (let item of this.listItem)
+                data["listItem"].push(item ? item.toJSON() : <any>undefined);
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+export interface IRoomRentalDtoPagedResultDto {
+    listItem?: RoomRentalDto[] | undefined;
+    totalCount?: number;
+}
+
+export class RoomRentalFilterDto implements IRoomRentalFilterDto {
+    roomNumber?: string | undefined;
+    roomType?: RoomType;
+    priceStart?: string | undefined;
+    priceEnd?: string | undefined;
+    statusRoom?: RoomStatus;
+    note?: string | undefined;
+    area?: string | undefined;
+    createdDate?: Date;
+    updatedDate?: Date;
+    creatorUser?: string | undefined;
+    lastUpdateUser?: string | undefined;
+
+    constructor(data?: IRoomRentalFilterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.roomNumber = _data["roomNumber"];
+            this.roomType = _data["roomType"];
+            this.priceStart = _data["priceStart"];
+            this.priceEnd = _data["priceEnd"];
+            this.statusRoom = _data["statusRoom"];
+            this.note = _data["note"];
+            this.area = _data["area"];
+            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
+            this.updatedDate = _data["updatedDate"] ? new Date(_data["updatedDate"].toString()) : <any>undefined;
+            this.creatorUser = _data["creatorUser"];
+            this.lastUpdateUser = _data["lastUpdateUser"];
+        }
+    }
+
+    static fromJS(data: any): RoomRentalFilterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomRentalFilterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["roomNumber"] = this.roomNumber;
+        data["roomType"] = this.roomType;
+        data["priceStart"] = this.priceStart;
+        data["priceEnd"] = this.priceEnd;
+        data["statusRoom"] = this.statusRoom;
+        data["note"] = this.note;
+        data["area"] = this.area;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        data["updatedDate"] = this.updatedDate ? this.updatedDate.toISOString() : <any>undefined;
+        data["creatorUser"] = this.creatorUser;
+        data["lastUpdateUser"] = this.lastUpdateUser;
+        return data;
+    }
+}
+
+export interface IRoomRentalFilterDto {
+    roomNumber?: string | undefined;
+    roomType?: RoomType;
+    priceStart?: string | undefined;
+    priceEnd?: string | undefined;
+    statusRoom?: RoomStatus;
+    note?: string | undefined;
+    area?: string | undefined;
+    createdDate?: Date;
+    updatedDate?: Date;
+    creatorUser?: string | undefined;
+    lastUpdateUser?: string | undefined;
+}
+
+export class RoomRentalFilterDtoPagedRequestDto implements IRoomRentalFilterDtoPagedRequestDto {
+    page?: number;
+    pageSize?: number;
+    sortBy?: string | undefined;
+    sortOrder?: string | undefined;
+    filter?: RoomRentalFilterDto;
+
+    constructor(data?: IRoomRentalFilterDtoPagedRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"];
+            this.pageSize = _data["pageSize"];
+            this.sortBy = _data["sortBy"];
+            this.sortOrder = _data["sortOrder"];
+            this.filter = _data["filter"] ? RoomRentalFilterDto.fromJS(_data["filter"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RoomRentalFilterDtoPagedRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoomRentalFilterDtoPagedRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page;
+        data["pageSize"] = this.pageSize;
+        data["sortBy"] = this.sortBy;
+        data["sortOrder"] = this.sortOrder;
+        data["filter"] = this.filter ? this.filter.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IRoomRentalFilterDtoPagedRequestDto {
+    page?: number;
+    pageSize?: number;
+    sortBy?: string | undefined;
+    sortOrder?: string | undefined;
+    filter?: RoomRentalFilterDto;
+}
+
+export enum RoomStatus {
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+}
+
+export enum RoomType {
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+}
+
 export class SelectListGroup implements ISelectListGroup {
     disabled?: boolean;
     name?: string | undefined;
@@ -792,6 +1214,7 @@ export class UserDto implements IUserDto {
     bikeId?: string | undefined;
     phoneNumber?: string | undefined;
     roleGroupId?: string | undefined;
+    password?: string | undefined;
 
     constructor(data?: IUserDto) {
         if (data) {
@@ -818,6 +1241,7 @@ export class UserDto implements IUserDto {
             this.bikeId = _data["bikeId"];
             this.phoneNumber = _data["phoneNumber"];
             this.roleGroupId = _data["roleGroupId"];
+            this.password = _data["password"];
         }
     }
 
@@ -844,6 +1268,7 @@ export class UserDto implements IUserDto {
         data["bikeId"] = this.bikeId;
         data["phoneNumber"] = this.phoneNumber;
         data["roleGroupId"] = this.roleGroupId;
+        data["password"] = this.password;
         return data;
     }
 }
@@ -863,6 +1288,7 @@ export interface IUserDto {
     bikeId?: string | undefined;
     phoneNumber?: string | undefined;
     roleGroupId?: string | undefined;
+    password?: string | undefined;
 }
 
 export class UserDtoPagedResultDto implements IUserDtoPagedResultDto {
