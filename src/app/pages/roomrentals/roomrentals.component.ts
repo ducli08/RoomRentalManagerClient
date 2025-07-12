@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RoomRentalDto, RoomRentalFilterDto, SelectListItem, RoomRentalFilterDtoPagedRequestDto, RoomType, RoomStatus, ServiceProxy } from '../../shared/service.proxies';
 import { Data } from '@angular/router';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
 import { CategoryCacheService } from '../../shared/category-cache.service';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -15,12 +15,15 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
 import { CreateRoomRentalsComponent } from './createroomrentals/createroomrentals.component';
 import { EditRoomRentalsComponent } from './editroomrentals/editroomrentals.component';
+import { NzSliderModule } from 'ng-zorro-antd/slider';
 
 @Component({
   selector: 'app-roomrentals',
-  imports: [NzIconModule, NzFormModule, FormsModule, NzSelectModule, NzInputModule, NzGridModule, NzDatePickerModule, NzTableModule, NzButtonModule, CommonModule],
+  imports: [NzIconModule, NzFormModule, FormsModule, NzSelectModule, NzInputModule, NzGridModule,
+     NzDatePickerModule, NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzSliderModule],
   templateUrl: './roomrentals.component.html',
-  styleUrl: './roomrentals.component.css'
+  styleUrls: ['./roomrentals.component.css'],
+  standalone: true,
 })
 export class RoomrentalsComponent {
   checked = false;
@@ -87,7 +90,6 @@ export class RoomrentalsComponent {
     return item.id;  // Hoặc bất kỳ thuộc tính duy nhất nào của item
   }
   ngOnInit(): void {
-    debugger
     this.lstRoomTypes = this.getEnumOptions(RoomType);
     this.lstRoomStatuses = this.getEnumOptions(RoomStatus);
     this.roomRentalFilterDto.roomNumber = "";
@@ -105,16 +107,19 @@ export class RoomrentalsComponent {
     this.controlRequestArray = [
       { label: 'Số phòng', key: 'roomNumber', type: 'text', placeholder: 'Nhập số phòng' },
       { label: 'Loại phòng', key: 'roomType', type: 'select', options: () => this.lstRoomTypes, placeholder: 'Chọn loại phòng' },
-      { label: '', key: 'priceStart', type: 'rangeDouble', placeholder: 'bắt đầu từ 0' },
-      { label: '', key: 'priceEnd', type: 'rangeDouble', placeholder: 'kết thúc tại 3' },
       { label: 'Trạng thái phòng', key: 'statusRoom', type: 'select', options: () => this.lstRoomStatuses, placeholder: 'Chọn trạng thái phòng' },
       { label: 'Ghi chú', key: 'note', type: 'text', placeholder: 'Nhập ghi chú' },
-      { label: 'Diện tích', key: 'area', type: 'rangeDouble', placeholder: 'Chọn khoảng: 0 - 20' },
+      { label: 'Người tạo', key: 'creatorUser', type: 'select', placeholder: '' },
+      { label: 'Ngày tạo', key: 'createdDate', type: 'datetime', placeholder: '' },
+      { label: 'Người cập nhật', key: 'lastUpdateUser', type: 'select', placeholder: '' },
+      { label: 'Diện tích', key: 'area', type: 'slider', placeholder: 'Chọn khoảng: 0 - 20' },
+      { label: 'Giá tiền', key: 'priceStart', type: 'slider', placeholder: '' },
     ];
     this.filterPerRows = this.chunkArray(this.controlRequestArray, 4);
     this.getAllRoomRentals();
   }
   getAllRoomRentals(): void {
+    debugger
     this.roomRentalRequestDto.filter = this.roomRentalFilterDto;
     this._serviceProxy.getAllRoomRental(this.roomRentalRequestDto).subscribe(response => {
       this.roomRentals = response.listItem ? response.listItem : [];

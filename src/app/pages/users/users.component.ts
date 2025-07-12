@@ -15,6 +15,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { SelectListItemService } from '../../shared/get-select-list-item.service';
 export interface Data {
   id: number;
   name: string;
@@ -33,10 +34,10 @@ export interface Data {
 @Component({
   selector: 'app-users',
   imports: [NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzIconModule, NzFormModule,
-     FormsModule, NzSelectModule, CreateUsersComponent, EditUsersComponent, NzInputModule, NzGridModule,
+     FormsModule, NzSelectModule, NzInputModule, NzGridModule,
      NzDatePickerModule],
   templateUrl: './users.component.html',
-  styleUrl: './users.component.css',
+  styleUrls: ['./users.component.css'],
   standalone: true,
 })
 export class UsersComponent implements OnInit {
@@ -68,7 +69,7 @@ export class UsersComponent implements OnInit {
     options?: () => SelectListItem[];
     placeholder?: string;
   }> = [];
-  constructor(private _serviceProxy: ServiceProxy, private modalService: NzModalService, private memoryCache: CategoryCacheService) { }
+  constructor(private _serviceProxy: ServiceProxy,private _getSelectListItem: SelectListItemService, private modalService: NzModalService, private memoryCache: CategoryCacheService) { }
   updateCheckedSet(id: number, checked: boolean): void {
     if (checked) {
       this.setOfCheckedId.add(id);
@@ -120,9 +121,9 @@ export class UsersComponent implements OnInit {
     const cachedProvinces = this.memoryCache.get<SelectListItem[]>('provinces');
     const cachedDistricts = this.memoryCache.get<SelectListItem[]>('districts');
     const cachedWards = this.memoryCache.get<SelectListItem[]>('wards');
-    const provinceObservable = cachedProvinces ? of(cachedProvinces) : this._serviceProxy.getAllProvince();
-    const districtObservable = cachedDistricts ? of(cachedDistricts) : this._serviceProxy.getAllDistrict(undefined);
-    const wardObservable = cachedWards ? of(cachedWards) : this._serviceProxy.getAllWard(undefined);
+    const provinceObservable = cachedProvinces ? of(cachedProvinces) : this._getSelectListItem.getSelectListItems('provinces', '');
+    const districtObservable = cachedDistricts ? of(cachedDistricts) : this._getSelectListItem.getSelectListItems('districts', '');
+    const wardObservable = cachedWards ? of(cachedWards) : this._getSelectListItem.getSelectListItems('wards', '');
     this.controlRequestArray = [
       { label: 'Tên', key: 'nameFilter', type: 'text', placeholder: 'Tên người dùng' },
       { label: 'Tỉnh/thành', key: 'provinceCodeFilter', type: 'select', options: () => this.lstProvinces, placeholder: 'Chọn tỉnh/thành' },

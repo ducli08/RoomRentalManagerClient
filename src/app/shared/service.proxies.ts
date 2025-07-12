@@ -29,6 +29,74 @@ export class ServiceProxy {
     }
 
     /**
+     * @param type (optional) 
+     * @param cascadeValue (optional) 
+     * @return Success
+     */
+    getSelectListItem(type: string | undefined, cascadeValue: string | undefined): Observable<SelectListItem[]> {
+        let url_ = this.baseUrl + "/api/Common/getSelectListItem?";
+        if (type === null)
+            throw new Error("The parameter 'type' cannot be null.");
+        else if (type !== undefined)
+            url_ += "type=" + encodeURIComponent("" + type) + "&";
+        if (cascadeValue === null)
+            throw new Error("The parameter 'cascadeValue' cannot be null.");
+        else if (cascadeValue !== undefined)
+            url_ += "cascadeValue=" + encodeURIComponent("" + cascadeValue) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSelectListItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSelectListItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SelectListItem[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SelectListItem[]>;
+        }));
+    }
+
+    protected processGetSelectListItem(response: HttpResponseBase): Observable<SelectListItem[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SelectListItem.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SelectListItem[]>([]);
+    }
+
+    /**
      * @param username (optional) 
      * @param password (optional) 
      * @param rememberMe (optional) 
