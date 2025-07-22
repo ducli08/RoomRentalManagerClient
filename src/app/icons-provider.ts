@@ -6,7 +6,9 @@ import {
   HomeOutline,
   SettingOutline,
   UserOutline,
-  UserAddOutline
+  UserAddOutline,
+  PlusOutline,
+  PictureTwoTone
 } from '@ant-design/icons-angular/icons';
 
-export const icons = [MenuFoldOutline, MenuUnfoldOutline, DashboardOutline,HomeOutline,SettingOutline,UserOutline, FormOutline, UserAddOutline];
+export const icons = [MenuFoldOutline, MenuUnfoldOutline, DashboardOutline,HomeOutline,SettingOutline,UserOutline, FormOutline, UserAddOutline,PlusOutline, PictureTwoTone];

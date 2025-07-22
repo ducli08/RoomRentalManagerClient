@@ -16,11 +16,13 @@ import { CommonModule } from '@angular/common';
 import { CreateRoomRentalsComponent } from './createroomrentals/createroomrentals.component';
 import { EditRoomRentalsComponent } from './editroomrentals/editroomrentals.component';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
+import { SelectListItemService } from '../../shared/get-select-list-item.service';
+import { forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-roomrentals',
   imports: [NzIconModule, NzFormModule, FormsModule, NzSelectModule, NzInputModule, NzGridModule,
-     NzDatePickerModule, NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzSliderModule],
+    NzDatePickerModule, NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzSliderModule],
   templateUrl: './roomrentals.component.html',
   styleUrls: ['./roomrentals.component.css'],
   standalone: true,
@@ -37,6 +39,7 @@ export class RoomrentalsComponent {
   total = 0;
   pageIndex = 1;
   pageSize = 10;
+  lstUser: SelectListItem[] = [];
   lstRoomTypes: SelectListItem[] = [];
   lstRoomStatuses: SelectListItem[] = [];
   filterPerRows: Array<Array<{
@@ -53,7 +56,7 @@ export class RoomrentalsComponent {
     options?: () => SelectListItem[];
     placeholder?: string;
   }> = [];
-  constructor(private _serviceProxy: ServiceProxy, private modalService: NzModalService, private memoryCache: CategoryCacheService) { }
+  constructor(private _serviceProxy: ServiceProxy, private _getSelectListItem: SelectListItemService, private modalService: NzModalService, private memoryCache: CategoryCacheService) { }
   onPageChange(page: number): void {
     debugger
     this.pageIndex = page;
@@ -90,8 +93,12 @@ export class RoomrentalsComponent {
     return item.id;  // Hoặc bất kỳ thuộc tính duy nhất nào của item
   }
   ngOnInit(): void {
-    this.lstRoomTypes = this.getEnumOptions(RoomType);
-    this.lstRoomStatuses = this.getEnumOptions(RoomStatus);
+    const cachedRoomTypes = this.memoryCache.get<SelectListItem[]>('roomType');
+    const cachedRoomStatus = this.memoryCache.get<SelectListItem[]>('roomStatus');
+    const cachedUsers = this.memoryCache.get<SelectListItem[]>('user');
+    const userObservable = cachedUsers ? of(cachedUsers) : this._getSelectListItem.getSelectListItems("user", "");
+    const roomTypeObservable = cachedRoomTypes ? of(cachedRoomTypes) : this._getSelectListItem.getEnumSelectListItems("roomType")
+    const roomStatusObservable = cachedRoomStatus ? of(cachedRoomStatus) : this._getSelectListItem.getEnumSelectListItems("roomStatus")
     this.roomRentalFilterDto.roomNumber = "";
     this.roomRentalFilterDto.roomType = RoomType._1;
     this.roomRentalFilterDto.priceStart = "";
@@ -109,14 +116,27 @@ export class RoomrentalsComponent {
       { label: 'Loại phòng', key: 'roomType', type: 'select', options: () => this.lstRoomTypes, placeholder: 'Chọn loại phòng' },
       { label: 'Trạng thái phòng', key: 'statusRoom', type: 'select', options: () => this.lstRoomStatuses, placeholder: 'Chọn trạng thái phòng' },
       { label: 'Ghi chú', key: 'note', type: 'text', placeholder: 'Nhập ghi chú' },
-      { label: 'Người tạo', key: 'creatorUser', type: 'select', placeholder: '' },
+      { label: 'Người tạo', key: 'creatorUser', type: 'select', options: () => this.lstUser, placeholder: 'Người tạo' },
       { label: 'Ngày tạo', key: 'createdDate', type: 'datetime', placeholder: '' },
-      { label: 'Người cập nhật', key: 'lastUpdateUser', type: 'select', placeholder: '' },
+      { label: 'Người cập nhật', key: 'lastUpdateUser', type: 'select', options: () => this.lstUser, placeholder: 'Người cập nhật' },
       { label: 'Diện tích', key: 'area', type: 'slider', placeholder: 'Chọn khoảng: 0 - 20' },
       { label: 'Giá tiền', key: 'priceStart', type: 'slider', placeholder: '' },
     ];
     this.filterPerRows = this.chunkArray(this.controlRequestArray, 4);
-    this.getAllRoomRentals();
+    forkJoin([userObservable, roomTypeObservable, roomStatusObservable])
+      .subscribe(([users, roomTypes, roomStatus]) => {
+        this.lstUser = users ? users : [];
+        this.lstRoomTypes = roomTypes ? roomTypes : [];
+        this.lstRoomStatuses = roomStatus ? roomStatus : [];
+        if (!cachedUsers) this.memoryCache.set('user', users);
+        if (!cachedRoomTypes) this.memoryCache.set('roomType', roomTypes);
+        if (!roomStatus) this.memoryCache.set('roomStatus', roomStatus);
+      },
+        error => {
+          console.error('Error fetching data:', error);
+        }
+      );
+    //this.getAllRoomRentals();
   }
   getAllRoomRentals(): void {
     debugger

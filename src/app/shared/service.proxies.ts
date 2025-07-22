@@ -97,6 +97,69 @@ export class ServiceProxy {
     }
 
     /**
+     * @param enumType (optional) 
+     * @return Success
+     */
+    getEnumSelectListItem(enumType: string | undefined): Observable<SelectListItemDto[]> {
+        let url_ = this.baseUrl + "/api/Common/getEnumSelectListItem?";
+        if (enumType === null)
+            throw new Error("The parameter 'enumType' cannot be null.");
+        else if (enumType !== undefined)
+            url_ += "enumType=" + encodeURIComponent("" + enumType) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetEnumSelectListItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetEnumSelectListItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SelectListItemDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SelectListItemDto[]>;
+        }));
+    }
+
+    protected processGetEnumSelectListItem(response: HttpResponseBase): Observable<SelectListItemDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SelectListItemDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SelectListItemDto[]>([]);
+    }
+
+    /**
      * @param username (optional) 
      * @param password (optional) 
      * @param rememberMe (optional) 
@@ -681,11 +744,7 @@ export class CreateOrEditRoomRentalDto implements ICreateOrEditRoomRentalDto {
     statusRoom?: RoomStatus;
     note?: string | undefined;
     area?: number;
-    imagesDescription?: number[] | undefined;
-    createdDate?: Date;
-    updatedDate?: Date;
-    creatorUser?: string | undefined;
-    lastUpdateUser?: string | undefined;
+    imagesDescription?: string[] | undefined;
 
     constructor(data?: ICreateOrEditRoomRentalDto) {
         if (data) {
@@ -710,10 +769,6 @@ export class CreateOrEditRoomRentalDto implements ICreateOrEditRoomRentalDto {
                 for (let item of _data["imagesDescription"])
                     this.imagesDescription!.push(item);
             }
-            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
-            this.updatedDate = _data["updatedDate"] ? new Date(_data["updatedDate"].toString()) : <any>undefined;
-            this.creatorUser = _data["creatorUser"];
-            this.lastUpdateUser = _data["lastUpdateUser"];
         }
     }
 
@@ -738,10 +793,6 @@ export class CreateOrEditRoomRentalDto implements ICreateOrEditRoomRentalDto {
             for (let item of this.imagesDescription)
                 data["imagesDescription"].push(item);
         }
-        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
-        data["updatedDate"] = this.updatedDate ? this.updatedDate.toISOString() : <any>undefined;
-        data["creatorUser"] = this.creatorUser;
-        data["lastUpdateUser"] = this.lastUpdateUser;
         return data;
     }
 }
@@ -754,11 +805,7 @@ export interface ICreateOrEditRoomRentalDto {
     statusRoom?: RoomStatus;
     note?: string | undefined;
     area?: number;
-    imagesDescription?: number[] | undefined;
-    createdDate?: Date;
-    updatedDate?: Date;
-    creatorUser?: string | undefined;
-    lastUpdateUser?: string | undefined;
+    imagesDescription?: string[] | undefined;
 }
 
 export class CreateOrEditUserDto implements ICreateOrEditUserDto {
@@ -1265,6 +1312,46 @@ export interface ISelectListItem {
     selected?: boolean;
     text?: string | undefined;
     value?: string | undefined;
+}
+
+export class SelectListItemDto implements ISelectListItemDto {
+    value?: string | undefined;
+    text?: string | undefined;
+
+    constructor(data?: ISelectListItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.value = _data["value"];
+            this.text = _data["text"];
+        }
+    }
+
+    static fromJS(data: any): SelectListItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SelectListItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value;
+        data["text"] = this.text;
+        return data;
+    }
+}
+
+export interface ISelectListItemDto {
+    value?: string | undefined;
+    text?: string | undefined;
 }
 
 export class UserDto implements IUserDto {

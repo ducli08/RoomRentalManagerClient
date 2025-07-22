@@ -9,4 +9,8 @@ export class SelectListItemService {
   getSelectListItems(type: string, cascadeValue: string): Observable<SelectListItem[]> {
     return this._serviceProxy.getSelectListItem(type, cascadeValue);
   }
+
+  getEnumSelectListItems(type: string): Observable<SelectListItem[]> {
+    return this._serviceProxy.getEnumSelectListItem(type);
+  }
 }
