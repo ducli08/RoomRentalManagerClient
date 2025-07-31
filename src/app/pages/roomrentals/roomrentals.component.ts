@@ -100,10 +100,10 @@ export class RoomrentalsComponent {
     const roomTypeObservable = cachedRoomTypes ? of(cachedRoomTypes) : this._getSelectListItem.getEnumSelectListItems("roomType")
     const roomStatusObservable = cachedRoomStatus ? of(cachedRoomStatus) : this._getSelectListItem.getEnumSelectListItems("roomStatus")
     this.roomRentalFilterDto.roomNumber = "";
-    this.roomRentalFilterDto.roomType = RoomType._1;
+    this.roomRentalFilterDto.roomType = undefined;
     this.roomRentalFilterDto.priceStart = "";
     this.roomRentalFilterDto.priceEnd = "";
-    this.roomRentalFilterDto.statusRoom = RoomStatus._1;
+    this.roomRentalFilterDto.statusRoom = undefined;
     this.roomRentalFilterDto.note = "";
     this.roomRentalFilterDto.area = "";
     this.roomRentalRequestDto.filter = this.roomRentalFilterDto;
@@ -136,10 +136,11 @@ export class RoomrentalsComponent {
           console.error('Error fetching data:', error);
         }
       );
-    //this.getAllRoomRentals();
+    this.getAllRoomRentals();
   }
   getAllRoomRentals(): void {
-    debugger
+    this.roomRentalFilterDto.roomType = this.roomRentalFilterDto.roomType !== undefined ? Number(this.roomRentalFilterDto.roomType) : 0;
+    this.roomRentalFilterDto.statusRoom = this.roomRentalFilterDto.statusRoom !== undefined ? Number(this.roomRentalFilterDto.statusRoom) : 0;
     this.roomRentalRequestDto.filter = this.roomRentalFilterDto;
     this._serviceProxy.getAllRoomRental(this.roomRentalRequestDto).subscribe(response => {
       this.roomRentals = response.listItem ? response.listItem : [];

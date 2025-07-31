@@ -20,7 +20,7 @@
             </nz-option>
           </nz-select>
 
-          <nz-upload nzListType="picture-card" [nzBeforeUpload]="beforeUpload"
+          <nz-upload nzListType="picture-card" [nzBeforeUpload]="beforeUpload" [nzFileList]="fileList"
             [nzShowButton]="fileList.length < 8" [nzPreview]="handlePreview" *ngIf="control.type === 'file'">
             <div>
               <nz-icon nzType="plus" />

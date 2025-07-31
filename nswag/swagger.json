@@ -253,6 +253,42 @@
         }
       }
     },
+    "/api/RoomRental/uploadImageDescription": {
+      "post": {
+        "tags": [
+          "RoomRental"
+        ],
+        "operationId": "uploadImageDescription",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "uploadImages": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              },
+              "encoding": {
+                "uploadImages": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/User/createOrEditUser": {
       "post": {
         "tags": [
@@ -547,15 +583,15 @@
             "nullable": true
           },
           "roomNumber": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "nullable": true
           },
           "roomType": {
             "$ref": "#/components/schemas/RoomType"
           },
           "price": {
-            "type": "number",
-            "format": "double"
+            "type": "string",
+            "nullable": true
           },
           "statusRoom": {
             "$ref": "#/components/schemas/RoomStatus"
@@ -565,8 +601,8 @@
             "nullable": true
           },
           "area": {
-            "type": "number",
-            "format": "double"
+            "type": "string",
+            "nullable": true
           },
           "imagesDescription": {
             "type": "array",

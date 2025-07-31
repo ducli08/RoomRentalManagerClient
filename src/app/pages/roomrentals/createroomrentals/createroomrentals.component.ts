@@ -11,11 +11,10 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { CommonModule } from '@angular/common';
 import { CategoryCacheService } from '../../../shared/category-cache.service';
 import { SelectListItemService } from '../../../shared/get-select-list-item.service';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, switchMap } from 'rxjs';
 import { NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 const getBase64 = (file: File): Promise<string | ArrayBuffer | null> => new Promise((resolve, reject) => {
-  debugger
   const reader = new FileReader();
   reader.readAsDataURL(file);
   reader.onload = () => resolve(reader.result);
@@ -39,7 +38,6 @@ export class CreateRoomRentalsComponent implements OnInit {
   previewVisible = false;
 
   handlePreview = async (file: NzUploadFile): Promise<void> => {
-    debugger
     if (!file.url && !file['preview']) {
       file['preview'] = await getBase64(file.originFileObj!);
     }
@@ -47,22 +45,29 @@ export class CreateRoomRentalsComponent implements OnInit {
     this.previewVisible = true;
   };
   beforeUpload = (file: NzUploadFile): boolean => {
-    debugger
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      file.thumbUrl = e.target.result as string;
-      this.fileList = [...this.fileList, file];
-      this.previewImage = e.target.result;
-    };
-    reader.readAsArrayBuffer(file as any);
+    let rawFile: File | undefined;
+    let uploadFile: NzUploadFile | undefined;
+    if(file instanceof File) {
+      rawFile = file;
+      uploadFile = {
+        ...file,
+        originFileObj: file,
+        status: 'done',
+        thumnbUrl: URL.createObjectURL(file)
+      }
+    }
+    else
+    {
+      rawFile = file.originFileObj;
+      uploadFile = {
+        ...file,
+        originFileObj: file.originFileObj,
+        status: 'done',
+        thumnbUrl: file.url
+      };
+    }
+    this.fileList = [...this.fileList, uploadFile!];
     return false; 
-  };
-
-  // Dummy để tránh ng-zorro lỗi khi không có nzAction
-  dummyRequest = (item: any) => {
-    setTimeout(() => {
-      item.onSuccess(null, item.file);
-    }, 0);
   };
   // Sử dụng lại cấu trúc controlRequestArray từ parent component
   controlRequestArray: Array<{
@@ -128,7 +133,7 @@ export class CreateRoomRentalsComponent implements OnInit {
       },
       {
         label: "Ảnh mô tả",
-        key: 'image',
+        key: 'imagesDescription',
         type: 'file',
         placeholder: 'Chọn ảnh mô tả',
       }
@@ -144,14 +149,27 @@ export class CreateRoomRentalsComponent implements OnInit {
   }
 
   onSubmit(): void {
-    debugger
     if (this.createRoomRentalForm.valid) {
       const roomRentalDto: CreateOrEditRoomRentalDto = this.createRoomRentalForm.value;
-      roomRentalDto.imagesDescription = this.fileList.map(file => file.originFileObj ? file.originFileObj.name : '');
-      roomRentalDto.id = 0; // Set ID to 0 for new creation
-      this.serviceProxy.createOrEditRoomRental(roomRentalDto).subscribe(() => {
+      roomRentalDto.roomType = roomRentalDto.roomType !== undefined ? Number(roomRentalDto.roomType) : 0;
+      roomRentalDto.statusRoom = roomRentalDto.statusRoom !== undefined ? Number(roomRentalDto.statusRoom) : 0;
+      const fileParameters = this.fileList
+        .filter(file => file.originFileObj)
+        .map(file => ({
+          data: file.originFileObj as File,
+          fileName: file.originFileObj ? (file.originFileObj as File).name : file.name
+        }));
+      this.serviceProxy.uploadImageDescription(fileParameters).pipe(
+        switchMap(imagePaths => {
+          roomRentalDto.imagesDescription = imagePaths;
+          roomRentalDto.id = 0; // Set ID to 0 for new creation
+          return this.serviceProxy.createOrEditRoomRental(roomRentalDto);
+        })
+      ).subscribe(() => {
         alert('Phòng cho thuê đã được tạo thành công!');
         this.createRoomRentalForm.reset();
+      }, error => {
+        console.error('Error creating room rental:', error);
       });
     }
   }
@@ -159,10 +177,10 @@ export class CreateRoomRentalsComponent implements OnInit {
     const cachedRoomTypes = this.memoryCache.get<SelectListItem[]>('roomType');
     const cachedRoomStatus = this.memoryCache.get<SelectListItem[]>('roomStatus');
     const cachedUsers = this.memoryCache.get<SelectListItem[]>('user');
-    const userObservable = cachedUsers ? of(cachedUsers) : this._getSelectListItem.getSelectListItems("user", "");
-    const roomTypeObservable = cachedRoomTypes ? of(cachedRoomTypes) : this._getSelectListItem.getEnumSelectListItems("roomType");
-    const roomStatusObservable = cachedRoomStatus ? of(cachedRoomStatus) : this._getSelectListItem.getEnumSelectListItems("roomStatus");
-    forkJoin([userObservable, roomTypeObservable, roomStatusObservable])
+    const userObservable$ = cachedUsers ? of(cachedUsers) : this._getSelectListItem.getSelectListItems("user", "");
+    const roomTypeObservable$ = cachedRoomTypes ? of(cachedRoomTypes) : this._getSelectListItem.getEnumSelectListItems("roomType");
+    const roomStatusObservable$ = cachedRoomStatus ? of(cachedRoomStatus) : this._getSelectListItem.getEnumSelectListItems("roomStatus");
+    forkJoin([userObservable$, roomTypeObservable$, roomStatusObservable$])
       .subscribe(([users, roomTypes, roomStatus]) => {
         this.lstUser = users ? users : [];
         this.lstRoomTypes = roomTypes ? roomTypes : [];

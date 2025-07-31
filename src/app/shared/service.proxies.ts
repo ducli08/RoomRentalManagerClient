@@ -334,6 +334,69 @@ export class ServiceProxy {
     }
 
     /**
+     * @param uploadImages (optional) 
+     * @return Success
+     */
+    uploadImageDescription(uploadImages: FileParameter[] | undefined): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/RoomRental/uploadImageDescription";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (uploadImages === null || uploadImages === undefined)
+            throw new Error("The parameter 'uploadImages' cannot be null.");
+        else
+            uploadImages.forEach(item_ => content_.append("uploadImages", item_.data, item_.fileName ? item_.fileName : "uploadImages") );
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUploadImageDescription(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUploadImageDescription(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processUploadImageDescription(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+                let images: string[] = [];
+                try{
+                    images = _responseText ? JSON.parse(_responseText).paths : [];
+                }
+                catch(e) {
+                    console.error('Error parsing response:', e);
+                    images = [];
+                }
+                return _observableOf(images);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+                return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf([] as string[]);
+    }
+
+    /**
      * @param body (optional) 
      * @return Success
      */
@@ -738,12 +801,12 @@ export class ServiceProxy {
 
 export class CreateOrEditRoomRentalDto implements ICreateOrEditRoomRentalDto {
     id?: number | undefined;
-    roomNumber?: number;
+    roomNumber?: number | undefined;
     roomType?: RoomType;
-    price?: number;
+    price?: number | undefined;
     statusRoom?: RoomStatus;
     note?: string | undefined;
-    area?: number;
+    area?: string | undefined;
     imagesDescription?: string[] | undefined;
 
     constructor(data?: ICreateOrEditRoomRentalDto) {
@@ -799,12 +862,12 @@ export class CreateOrEditRoomRentalDto implements ICreateOrEditRoomRentalDto {
 
 export interface ICreateOrEditRoomRentalDto {
     id?: number | undefined;
-    roomNumber?: number;
+    roomNumber?: number | undefined;
     roomType?: RoomType;
-    price?: number;
+    price?: number | undefined;
     statusRoom?: RoomStatus;
     note?: string | undefined;
-    area?: number;
+    area?: string | undefined;
     imagesDescription?: string[] | undefined;
 }
 
@@ -1082,10 +1145,10 @@ export interface IRoomRentalDtoPagedResultDto {
 
 export class RoomRentalFilterDto implements IRoomRentalFilterDto {
     roomNumber?: string | undefined;
-    roomType?: RoomType;
+    roomType?: RoomType | undefined;
     priceStart?: string | undefined;
     priceEnd?: string | undefined;
-    statusRoom?: RoomStatus;
+    statusRoom?: RoomStatus | undefined;
     note?: string | undefined;
     area?: string | undefined;
     createdDate?: Date;
@@ -1144,10 +1207,10 @@ export class RoomRentalFilterDto implements IRoomRentalFilterDto {
 
 export interface IRoomRentalFilterDto {
     roomNumber?: string | undefined;
-    roomType?: RoomType;
+    roomType?: RoomType | undefined;
     priceStart?: string | undefined;
     priceEnd?: string | undefined;
-    statusRoom?: RoomStatus;
+    statusRoom?: RoomStatus | undefined;
     note?: string | undefined;
     area?: string | undefined;
     createdDate?: Date;
@@ -1608,6 +1671,11 @@ export interface IUserFilterDtoPagedRequestDto {
     sortBy?: string | undefined;
     sortOrder?: string | undefined;
     filter?: UserFilterDto;
+}
+
+export interface FileParameter {
+    data: any;
+    fileName: string;
 }
 
 export class ApiException extends Error {
