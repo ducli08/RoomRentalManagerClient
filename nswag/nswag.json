@@ -18,7 +18,7 @@
       "useSingletonProvider": true,
       "promiseType": "Promise",
       "injectionTokenType": "InjectionToken",
-      "output": "E:/SourceCode/RoomRentalManagerClient/roomrentalmanagerclient/src/app/shared/service.proxies.ts",
+      "output": "D:/Working/roomrentalmanagerclient/src/app/shared/service.proxies.ts",
       "generateClientClasses": true
     }
   }
