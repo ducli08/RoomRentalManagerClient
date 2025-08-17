@@ -731,8 +731,7 @@
             "type": "array",
             "nullable": true,
             "items": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           "createdDate": {

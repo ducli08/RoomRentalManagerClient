@@ -17,12 +17,13 @@ import { CreateRoomRentalsComponent } from './createroomrentals/createroomrental
 import { EditRoomRentalsComponent } from './editroomrentals/editroomrentals.component';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { SelectListItemService } from '../../shared/get-select-list-item.service';
+import { NzImageModule } from 'ng-zorro-antd/image';
 import { forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-roomrentals',
   imports: [NzIconModule, NzFormModule, FormsModule, NzSelectModule, NzInputModule, NzGridModule,
-    NzDatePickerModule, NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzSliderModule],
+    NzDatePickerModule, NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzSliderModule, NzImageModule],
   templateUrl: './roomrentals.component.html',
   styleUrls: ['./roomrentals.component.css'],
   standalone: true,
@@ -106,6 +107,10 @@ export class RoomrentalsComponent {
     this.roomRentalFilterDto.statusRoom = undefined;
     this.roomRentalFilterDto.note = "";
     this.roomRentalFilterDto.area = "";
+    this.roomRentalFilterDto.creatorUser = "";
+    this.roomRentalFilterDto.lastUpdateUser = "";
+    this.roomRentalFilterDto.createdDate = new Date();
+    this.roomRentalFilterDto.updatedDate = new Date();
     this.roomRentalRequestDto.filter = this.roomRentalFilterDto;
     this.roomRentalRequestDto.page = this.pageIndex;
     this.roomRentalRequestDto.pageSize = this.pageSize;
@@ -119,6 +124,7 @@ export class RoomrentalsComponent {
       { label: 'Người tạo', key: 'creatorUser', type: 'select', options: () => this.lstUser, placeholder: 'Người tạo' },
       { label: 'Ngày tạo', key: 'createdDate', type: 'datetime', placeholder: '' },
       { label: 'Người cập nhật', key: 'lastUpdateUser', type: 'select', options: () => this.lstUser, placeholder: 'Người cập nhật' },
+      { label: 'Ngày cập nhật', key: 'updatedDate', type: 'datetime', placeholder: '' },
       { label: 'Diện tích', key: 'area', type: 'slider', placeholder: 'Chọn khoảng: 0 - 20' },
       { label: 'Giá tiền', key: 'priceStart', type: 'slider', placeholder: '' },
     ];
@@ -216,6 +222,16 @@ export class RoomrentalsComponent {
         },
       ],
     })
+  }
+
+  getRoomTypeText(value: RoomType): string {
+    const found = this.lstRoomTypes.find(item => Number(item.value) === Number(value));
+    return found ? found.text ?? '' : '';
+  }
+
+  getRoomStatusText(value: RoomStatus): string {
+    const found = this.lstRoomStatuses.find(item => Number(item.value) === Number(value));
+    return found ? found.text ?? '' : '';
   }
 }
 

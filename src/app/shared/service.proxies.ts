@@ -1014,7 +1014,7 @@ export class RoomRentalDto implements IRoomRentalDto {
     statusRoom?: RoomStatus;
     note?: string | undefined;
     area?: number;
-    imagesDescription?: number[] | undefined;
+    imagesDescription?: string[] | undefined;
     createdDate?: Date;
     updatedDate?: Date;
     creatorUser?: string | undefined;
@@ -1087,7 +1087,7 @@ export interface IRoomRentalDto {
     statusRoom?: RoomStatus;
     note?: string | undefined;
     area?: number;
-    imagesDescription?: number[] | undefined;
+    imagesDescription?: string[] | undefined;
     createdDate?: Date;
     updatedDate?: Date;
     creatorUser?: string | undefined;
@@ -1144,10 +1144,10 @@ export interface IRoomRentalDtoPagedResultDto {
 
 export class RoomRentalFilterDto implements IRoomRentalFilterDto {
     roomNumber?: string | undefined;
-    roomType?: RoomType | undefined;
+    roomType?: RoomType;
     priceStart?: string | undefined;
     priceEnd?: string | undefined;
-    statusRoom?: RoomStatus | undefined;
+    statusRoom?: RoomStatus;
     note?: string | undefined;
     area?: string | undefined;
     createdDate?: Date;
@@ -1206,10 +1206,10 @@ export class RoomRentalFilterDto implements IRoomRentalFilterDto {
 
 export interface IRoomRentalFilterDto {
     roomNumber?: string | undefined;
-    roomType?: RoomType | undefined;
+    roomType?: RoomType;
     priceStart?: string | undefined;
     priceEnd?: string | undefined;
-    statusRoom?: RoomStatus | undefined;
+    statusRoom?: RoomStatus;
     note?: string | undefined;
     area?: string | undefined;
     createdDate?: Date;

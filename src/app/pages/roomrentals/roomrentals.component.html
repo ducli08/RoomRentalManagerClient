@@ -34,17 +34,17 @@
     <tr>
       <th [nzChecked]="checked" [nzIndeterminate]="indeterminate" nzLabel="Select all"
         (nzCheckedChange)="onAllChecked($event)"></th>
-      <th>Tên</th>
-      <th>Email</th>
-      <th>Tỉnh/TP</th>
-      <th>Quận/Huyện</th>
-      <th>Xã/Phường</th>
-      <th>Địa chỉ</th>
-      <th>Số CCCD</th>
-      <th>Nghề nghiệp</th>
-      <th>Ngày tháng năm sinh</th>
-      <th>Giới tính</th>
-      <th>Phương tiện</th>
+      <th>Số phòng</th>
+      <th>Loại phòng</th>
+      <th>Giá tiền</th>
+      <th>Trạng thái phòng</th>
+      <th>Ghi chú</th>
+      <th>Diện tích(m2)</th>
+      <th>Ảnh mô tả</th>
+      <th>Ngày tạo</th>
+      <th>Ngày cập nhật</th>
+      <th>Người tạo</th>
+      <th>Người cập nhật</th>
       <th>Thao tác</th>
     </tr>
   </thead>
@@ -54,13 +54,17 @@
         [nzLabel]="data.note !== undefined ? data.note : null"
         (nzCheckedChange)="onItemChecked(data.id !== undefined ? data.id : 0, $event)"></td>
       <td>{{ data.roomNumber }}</td>
-      <td>{{ data.roomType }}</td>
+    <td>{{ data.roomType !== undefined ? getRoomTypeText(data.roomType) : '' }}</td>
       <td>{{ data.price }}</td>
-      <td>{{ data.statusRoom }}</td>
+    <td>{{ data.statusRoom !== undefined ? getRoomStatusText(data.statusRoom) : '' }}</td>
       <td>{{ data.note }}</td>
       <td>{{ data.area }}</td>
-      <td>{{ data.imagesDescription }}</td>
-      <td>{{ data.createdDate | date: 'dd/MM/yyyy' }}</td>
+      <td>
+       <ng-container *ngFor="let img of data.imagesDescription">
+          <img nz-image [nzSrc]="'https://localhost:7246' + img"  style="width: 50px; height: 50px; margin-right: 5px;" />
+        </ng-container>
+      </td>
+      <td>{{ data.createdDate | date: 'dd/MM/yyyy' }}</td>  
       <td>{{ data.updatedDate | date: 'dd/MM/yyyy' }}</td>
       <td>{{ data.creatorUser }}</td>
         <td>{{ data.lastUpdateUser }}</td>
