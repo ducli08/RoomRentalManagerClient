@@ -213,7 +213,7 @@ export class RoomrentalsComponent {
         {
           label: 'Lưu',
           type: 'primary',
-          disabled: (componentInstance) => !componentInstance?.editUserForm.valid, // Custom disabled
+          disabled: (componentInstance) => !componentInstance?.editRoomRentalForm.valid, // Custom disabled
           onClick: (componentInstance) => {
             if (componentInstance) {
               componentInstance.onSubmit(); // Gọi hàm submit trong component con
