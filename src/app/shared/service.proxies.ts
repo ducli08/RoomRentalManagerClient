@@ -1150,8 +1150,8 @@ export class RoomRentalFilterDto implements IRoomRentalFilterDto {
     statusRoom?: RoomStatus;
     note?: string | undefined;
     area?: string | undefined;
-    createdDate?: Date;
-    updatedDate?: Date;
+    createdDate?: Date | undefined;
+    updatedDate?: Date | undefined;
     creatorUser?: string | undefined;
     lastUpdateUser?: string | undefined;
 
@@ -1212,8 +1212,8 @@ export interface IRoomRentalFilterDto {
     statusRoom?: RoomStatus;
     note?: string | undefined;
     area?: string | undefined;
-    createdDate?: Date;
-    updatedDate?: Date;
+    createdDate?: Date | undefined;
+    updatedDate?: Date | undefined;
     creatorUser?: string | undefined;
     lastUpdateUser?: string | undefined;
 }

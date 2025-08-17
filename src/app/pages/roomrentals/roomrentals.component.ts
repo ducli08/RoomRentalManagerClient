@@ -109,8 +109,8 @@ export class RoomrentalsComponent {
     this.roomRentalFilterDto.area = "";
     this.roomRentalFilterDto.creatorUser = "";
     this.roomRentalFilterDto.lastUpdateUser = "";
-    this.roomRentalFilterDto.createdDate = new Date();
-    this.roomRentalFilterDto.updatedDate = new Date();
+    this.roomRentalFilterDto.createdDate = undefined;
+    this.roomRentalFilterDto.updatedDate = undefined;
     this.roomRentalRequestDto.filter = this.roomRentalFilterDto;
     this.roomRentalRequestDto.page = this.pageIndex;
     this.roomRentalRequestDto.pageSize = this.pageSize;
