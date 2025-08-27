@@ -39,19 +39,20 @@ export class EditRoomRentalsComponent {
   
   constructor(private fb: FormBuilder, private serviceProxy: ServiceProxy, private memoryCache: CategoryCacheService,
     private _getSelectListItem: SelectListItemService, @Inject(NZ_MODAL_DATA) public data: { roomrentalData: any }) {
+    // Initialize form with basic structure first
     this.editRoomRentalForm = this.fb.group({
-      id: ['', Validators.required],
+      id: [''],
       roomNumber: ['', Validators.required],
       roomType: ['', Validators.required],
       price: ['', Validators.required],
       statusRoom: ['', Validators.required],
-      note: ['', Validators.required],
+      note: [''],
       area: ['', Validators.required],
-      createdDate: ['', Validators.required],
-      updatedDate: ['', Validators.required],
-      creatorUser: ['', Validators.required],
-      lastUpdateUser: ['', Validators.required],
-      imageDescriptions: ['', Validators.required]
+      createdDate: [''],
+      updatedDate: [''],
+      creatorUser: [''],
+      lastUpdateUser: [''],
+      imagesDescription: ['']
     });
   }
   controlRequestArray: Array<{
@@ -63,15 +64,6 @@ export class EditRoomRentalsComponent {
     validators?: any[];
   }> = [];
 
-  onSubmit(): void {
-    // if (this.editUserForm.valid) {
-    //   const userDto: CreateOrEditUserDto = this.editUserForm.value;
-    //   this.serviceProxy.createOrEditUser(userDto).subscribe(() => {
-    //     alert('Người dùng đã được tạo thành công!');
-    //     this.editUserForm.reset();
-    //   });
-    // }
-  }
   handlePreview = async (file: NzUploadFile): Promise<void> => {
       if (!file.url && !file['preview']) {
         file['preview'] = await getBase64(file.originFileObj!);
@@ -111,6 +103,7 @@ export class EditRoomRentalsComponent {
     const userObservable$ = cachedUsers ? of(cachedUsers) : this._getSelectListItem.getSelectListItems("user", "");
     const roomTypeObservable$ = cachedRoomTypes ? of(cachedRoomTypes) : this._getSelectListItem.getEnumSelectListItems("roomType");
     const roomStatusObservable$ = cachedRoomStatus ? of(cachedRoomStatus) : this._getSelectListItem.getEnumSelectListItems("roomStatus");
+    
     forkJoin([userObservable$, roomTypeObservable$, roomStatusObservable$])
       .subscribe(([users, roomTypes, roomStatus]) => {
         this.lstUser = users ? users : [];
@@ -122,6 +115,9 @@ export class EditRoomRentalsComponent {
 
         // Khởi tạo controlRequestArray sau khi có dữ liệu
         this.initializeFormControls();
+        
+        // Fill dữ liệu vào form SAU KHI đã có tất cả select lists
+        this.populateFormData();
       },
         error => {
           console.error('Error fetching data:', error);
@@ -130,7 +126,7 @@ export class EditRoomRentalsComponent {
   }
 
   initializeFormControls(): void {
-    // Định nghĩa các field cho form tạo mới
+    // Định nghĩa các field cho form chỉnh sửa (chỉ những field có thể edit)
     this.controlRequestArray = [
       {
         label: 'Số phòng',
@@ -178,13 +174,67 @@ export class EditRoomRentalsComponent {
         placeholder: 'Chọn ảnh mô tả',
       }
     ];
+  }
 
-    // Tạo FormGroup động dựa trên controlRequestArray
-    const formControls: { [key: string]: any } = {};
-    this.controlRequestArray.forEach(control => {
-      formControls[control.key] = ['', control.validators || []];
-    });
+  populateFormData(): void {
+    // Fill dữ liệu vào form nếu có
+    if (this.data && this.data.roomrentalData) {
+      console.log('Populating form with data:', this.data.roomrentalData);
+      
+      // Ensure the form values match the select options
+      const formData = { ...this.data.roomrentalData };
+      
+      // Convert enum values to match select options if needed
+      if (formData.roomType !== undefined) {
+        formData.roomType = formData.roomType.toString();
+      }
+      if (formData.statusRoom !== undefined) {
+        formData.statusRoom = formData.statusRoom.toString();
+      }
+      
+      this.editRoomRentalForm.patchValue(formData);
+      
+      console.log('Form after patch:', this.editRoomRentalForm.value);
+      
+      // Handle image descriptions if available
+      if (this.data.roomrentalData.imagesDescription && this.data.roomrentalData.imagesDescription.length > 0) {
+        this.fileList = this.data.roomrentalData.imagesDescription.map((img: any, index: number) => ({
+          uid: `${index}`,
+          name: `image-${index}`,
+          status: 'done',
+          url: 'https://localhost:7246' + img,
+          thumbUrl: 'https://localhost:7246' + img
+        }));
+      }
+    }
+  }
 
-    this.editRoomRentalForm = this.fb.group(formControls);
+  onSubmit(): void {
+    if (this.editRoomRentalForm.valid) {
+      const formData = this.editRoomRentalForm.value;
+      // Handle file list if needed
+      if (this.fileList && this.fileList.length > 0) {
+        formData.imageDescriptions = this.fileList.map(file => ({
+          imageUrl: file.url || file.thumbUrl,
+          description: file.name
+        }));
+      }
+
+      console.log('Form data to submit:', formData);
+      
+      // Call the service to update room rental
+      // this.serviceProxy.updateRoomRental(formData).subscribe(() => {
+      //   alert('Phòng cho thuê đã được cập nhật thành công!');
+      //   // Close modal and refresh parent data
+      // });
+      
+      // For now, just log the data
+      alert('Dữ liệu sẵn sàng để cập nhật!');
+    } else {
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.editRoomRentalForm.controls).forEach(key => {
+        this.editRoomRentalForm.get(key)?.markAsTouched();
+      });
+    }
   }
 }

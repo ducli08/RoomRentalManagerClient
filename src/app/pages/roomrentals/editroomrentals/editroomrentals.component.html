@@ -1,6 +1,13 @@
 <div class="create-user">
   <form nz-form [formGroup]="editRoomRentalForm" (ngSubmit)="onSubmit()">
 
+    <!-- Hidden fields for readonly data -->
+    <input type="hidden" formControlName="id" />
+    <input type="hidden" formControlName="createdDate" />
+    <input type="hidden" formControlName="updatedDate" />
+    <input type="hidden" formControlName="creatorUser" />
+    <input type="hidden" formControlName="lastUpdateUser" />
+
     <!-- Dynamic form fields based on controlRequestArray -->
     <div *ngFor="let control of controlRequestArray">
       <nz-form-item>
