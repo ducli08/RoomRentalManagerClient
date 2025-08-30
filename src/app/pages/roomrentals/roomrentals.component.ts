@@ -43,6 +43,8 @@ export class RoomrentalsComponent {
   lstUser: SelectListItem[] = [];
   lstRoomTypes: SelectListItem[] = [];
   lstRoomStatuses: SelectListItem[] = [];
+  priceRange: [number, number] = [0, 100];
+  areaRange: [number, number] = [0, 100];
   filterPerRows: Array<Array<{
     label: string;
     key: keyof RoomRentalFilterDto;
@@ -102,11 +104,12 @@ export class RoomrentalsComponent {
     const roomStatusObservable = cachedRoomStatus ? of(cachedRoomStatus) : this._getSelectListItem.getEnumSelectListItems("roomStatus")
     this.roomRentalFilterDto.roomNumber = "";
     this.roomRentalFilterDto.roomType = undefined;
-    this.roomRentalFilterDto.priceStart = "";
-    this.roomRentalFilterDto.priceEnd = "";
+    this.roomRentalFilterDto.priceStart = this.priceRange[0].toString();
+    this.roomRentalFilterDto.priceEnd = this.priceRange[1].toString();
     this.roomRentalFilterDto.statusRoom = undefined;
     this.roomRentalFilterDto.note = "";
-    this.roomRentalFilterDto.area = "";
+    this.roomRentalFilterDto.areaStart = this.areaRange[0].toString();
+    this.roomRentalFilterDto.areaEnd = this.areaRange[1].toString();
     this.roomRentalFilterDto.creatorUser = "";
     this.roomRentalFilterDto.lastUpdateUser = "";
     this.roomRentalFilterDto.createdDate = undefined;
@@ -125,7 +128,7 @@ export class RoomrentalsComponent {
       { label: 'Ngày tạo', key: 'createdDate', type: 'datetime', placeholder: '' },
       { label: 'Người cập nhật', key: 'lastUpdateUser', type: 'select', options: () => this.lstUser, placeholder: 'Người cập nhật' },
       { label: 'Ngày cập nhật', key: 'updatedDate', type: 'datetime', placeholder: '' },
-      { label: 'Diện tích', key: 'area', type: 'slider', placeholder: 'Chọn khoảng: 0 - 20' },
+      { label: 'Diện tích', key: 'areaStart', type: 'slider', placeholder: 'Chọn khoảng: 0 - 20' },
       { label: 'Giá tiền', key: 'priceStart', type: 'slider', placeholder: '' },
     ];
     this.filterPerRows = this.chunkArray(this.controlRequestArray, 4);
@@ -154,6 +157,20 @@ export class RoomrentalsComponent {
     }, error => {
       console.error('Error fetching room rentals:', error);
     });
+  }
+  setSliderValue(key: string, range: [number, number]) {
+    if (key === 'priceStart') {
+      this.priceRange = range;
+      this.roomRentalFilterDto.priceStart = range[0].toString();
+      this.roomRentalFilterDto.priceEnd = range[1].toString();
+    } else if (key === 'areaStart') {
+      this.areaRange = range;
+      this.roomRentalFilterDto.areaStart = range[0].toString();
+      this.roomRentalFilterDto.areaEnd = range[1].toString();
+    }
+  }
+  getSliderValue(key: string): [number, number] {
+    return key === 'priceStart' ? this.priceRange : this.areaRange;
   }
   chunkArray<T>(array: T[], chunkSize: number): T[][] {
     const result: T[][] = [];

@@ -377,7 +377,7 @@ export class ServiceProxy {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-                let images: string[] = [];
+            let images: string[] = [];
                 try{
                     images = _responseText ? JSON.parse(_responseText).paths : [];
                 }
@@ -1149,7 +1149,8 @@ export class RoomRentalFilterDto implements IRoomRentalFilterDto {
     priceEnd?: string | undefined;
     statusRoom?: RoomStatus;
     note?: string | undefined;
-    area?: string | undefined;
+    areaStart?: string | undefined;
+    areaEnd?: string | undefined;
     createdDate?: Date | undefined;
     updatedDate?: Date | undefined;
     creatorUser?: string | undefined;
@@ -1172,7 +1173,8 @@ export class RoomRentalFilterDto implements IRoomRentalFilterDto {
             this.priceEnd = _data["priceEnd"];
             this.statusRoom = _data["statusRoom"];
             this.note = _data["note"];
-            this.area = _data["area"];
+            this.areaStart = _data["areaStart"];
+            this.areaEnd = _data["areaEnd"];
             this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : undefined as any;
             this.updatedDate = _data["updatedDate"] ? new Date(_data["updatedDate"].toString()) : undefined as any;
             this.creatorUser = _data["creatorUser"];
@@ -1195,7 +1197,8 @@ export class RoomRentalFilterDto implements IRoomRentalFilterDto {
         data["priceEnd"] = this.priceEnd;
         data["statusRoom"] = this.statusRoom;
         data["note"] = this.note;
-        data["area"] = this.area;
+        data["areaStart"] = this.areaStart;
+        data["areaEnd"] = this.areaEnd;
         data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : undefined as any;
         data["updatedDate"] = this.updatedDate ? this.updatedDate.toISOString() : undefined as any;
         data["creatorUser"] = this.creatorUser;
@@ -1211,7 +1214,8 @@ export interface IRoomRentalFilterDto {
     priceEnd?: string | undefined;
     statusRoom?: RoomStatus;
     note?: string | undefined;
-    area?: string | undefined;
+    areaStart?: string | undefined;
+    areaEnd?: string | undefined;
     createdDate?: Date | undefined;
     updatedDate?: Date | undefined;
     creatorUser?: string | undefined;

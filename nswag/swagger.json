@@ -795,17 +795,23 @@
             "type": "string",
             "nullable": true
           },
-          "area": {
+          "areaStart": {
+            "type": "string",
+            "nullable": true
+          },
+          "areaEnd": {
             "type": "string",
             "nullable": true
           },
           "createdDate": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "updatedDate": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "nullable": true
           },
           "creatorUser": {
             "type": "string",

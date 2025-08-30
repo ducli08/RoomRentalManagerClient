@@ -14,7 +14,7 @@
             </nz-select>
             <nz-date-picker style="width: 100%;" *ngSwitchCase="'datetime'" [(ngModel)]="roomRentalFilterDto[field.key]" 
               id ="dateOfBirth" [name]="field.key"></nz-date-picker>
-            <nz-slider *ngSwitchCase="'slider'" [(ngModel)]="roomRentalFilterDto[field.key]" [name]="field.key"></nz-slider>
+            <nz-slider nzRange *ngSwitchCase="'slider'" [ngModel]="getSliderValue(field.key)" [name]="field.key" (ngModelChange)="setSliderValue(field.key, $event)"></nz-slider>
           </ng-container>
         </nz-form-control>
       </nz-form-item>
