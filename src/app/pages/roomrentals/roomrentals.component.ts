@@ -148,9 +148,16 @@ export class RoomrentalsComponent {
     this.getAllRoomRentals();
   }
   getAllRoomRentals(): void {
-    this.roomRentalFilterDto.roomType = this.roomRentalFilterDto.roomType !== undefined ? Number(this.roomRentalFilterDto.roomType) : 0;
-    this.roomRentalFilterDto.statusRoom = this.roomRentalFilterDto.statusRoom !== undefined ? Number(this.roomRentalFilterDto.statusRoom) : 0;
-    this.roomRentalRequestDto.filter = this.roomRentalFilterDto;
+    const filterToSend = new RoomRentalFilterDto();
+    Object.assign(filterToSend, this.roomRentalFilterDto);
+    if (filterToSend.roomType !== undefined) {
+      filterToSend.roomType = Number(filterToSend.roomType) as any;
+    }
+    if (filterToSend.statusRoom !== undefined) {
+      filterToSend.statusRoom = Number(filterToSend.statusRoom) as any;
+    }
+
+    this.roomRentalRequestDto.filter = filterToSend;
     this._serviceProxy.getAllRoomRental(this.roomRentalRequestDto).subscribe(response => {
       this.roomRentals = response.listItem ? response.listItem : [];
       this.total = response.totalCount ? response.totalCount : 0;
