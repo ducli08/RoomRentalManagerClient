@@ -61,7 +61,6 @@ export class RoomrentalsComponent {
   }> = [];
   constructor(private _serviceProxy: ServiceProxy, private _getSelectListItem: SelectListItemService, private modalService: NzModalService, private memoryCache: CategoryCacheService) { }
   onPageChange(page: number): void {
-    debugger
     this.pageIndex = page;
     this.roomRentalRequestDto.page = page;
     this.getAllRoomRentals();
@@ -139,7 +138,7 @@ export class RoomrentalsComponent {
         this.lstRoomStatuses = roomStatus ? roomStatus : [];
         if (!cachedUsers) this.memoryCache.set('user', users);
         if (!cachedRoomTypes) this.memoryCache.set('roomType', roomTypes);
-        if (!roomStatus) this.memoryCache.set('roomStatus', roomStatus);
+        if (!cachedRoomStatus) this.memoryCache.set('roomStatus', roomStatus);
       },
         error => {
           console.error('Error fetching data:', error);
@@ -210,7 +209,7 @@ export class RoomrentalsComponent {
         {
           label: 'Lưu',
           type: 'primary',
-          disabled: (componentInstance) => !componentInstance?.createRoomRentalForm.valid, // Custom disabled
+          disabled: (componentInstance) => !componentInstance?.createRoomRentalForm.valid,
           onClick: (componentInstance) => {
             if (componentInstance) {
               componentInstance.onSubmit(); // Gọi hàm submit trong component con
@@ -237,7 +236,7 @@ export class RoomrentalsComponent {
         {
           label: 'Lưu',
           type: 'primary',
-          disabled: (componentInstance) => !componentInstance?.editRoomRentalForm.valid, // Custom disabled
+          disabled: (componentInstance) => !componentInstance?.editRoomRentalForm.valid,
           onClick: (componentInstance) => {
             if (componentInstance) {
               componentInstance.onSubmit(); // Gọi hàm submit trong component con
@@ -256,6 +255,6 @@ export class RoomrentalsComponent {
   getRoomStatusText(value: RoomStatus): string {
     const found = this.lstRoomStatuses.find(item => Number(item.value) === Number(value));
     return found ? found.text ?? '' : '';
-  }
+  };
 }
 
