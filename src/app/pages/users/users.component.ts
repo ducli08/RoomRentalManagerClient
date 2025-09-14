@@ -16,6 +16,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { SelectListItemService } from '../../shared/get-select-list-item.service';
+import { NzImageModule } from 'ng-zorro-antd/image';
 export interface Data {
   id: number;
   name: string;
@@ -35,7 +36,7 @@ export interface Data {
   selector: 'app-users',
   imports: [NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzIconModule, NzFormModule,
      FormsModule, NzSelectModule, NzInputModule, NzGridModule,
-     NzDatePickerModule],
+     NzDatePickerModule, NzImageModule],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css'],
   standalone: true,

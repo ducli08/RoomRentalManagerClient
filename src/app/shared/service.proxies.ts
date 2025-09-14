@@ -997,6 +997,7 @@ export class CreateOrEditUserDto implements ICreateOrEditUserDto {
     bikeId?: string | undefined;
     phoneNumber?: string | undefined;
     password?: string | undefined;
+    avatar?: string | undefined;
 
     constructor(data?: ICreateOrEditUserDto) {
         if (data) {
@@ -1024,6 +1025,7 @@ export class CreateOrEditUserDto implements ICreateOrEditUserDto {
             this.bikeId = _data["bikeId"];
             this.phoneNumber = _data["phoneNumber"];
             this.password = _data["password"];
+            this.avatar = _data["avatar"];
         }
     }
 
@@ -1051,6 +1053,7 @@ export class CreateOrEditUserDto implements ICreateOrEditUserDto {
         data["bikeId"] = this.bikeId;
         data["phoneNumber"] = this.phoneNumber;
         data["password"] = this.password;
+        data["avatar"] = this.avatar;
         return data;
     }
 }
@@ -1071,6 +1074,7 @@ export interface ICreateOrEditUserDto {
     bikeId?: string | undefined;
     phoneNumber?: string | undefined;
     password?: string | undefined;
+    avatar?: string | undefined;
 }
 
 export class LoginResponseDto implements ILoginResponseDto {
@@ -1611,6 +1615,7 @@ export class UserDto implements IUserDto {
     phoneNumber?: string | undefined;
     roleGroupId?: string | undefined;
     password?: string | undefined;
+    avatar?: string | undefined;
 
     constructor(data?: IUserDto) {
         if (data) {
@@ -1638,6 +1643,7 @@ export class UserDto implements IUserDto {
             this.phoneNumber = _data["phoneNumber"];
             this.roleGroupId = _data["roleGroupId"];
             this.password = _data["password"];
+            this.avatar = _data["avatar"];
         }
     }
 
@@ -1665,6 +1671,7 @@ export class UserDto implements IUserDto {
         data["phoneNumber"] = this.phoneNumber;
         data["roleGroupId"] = this.roleGroupId;
         data["password"] = this.password;
+        data["avatar"] = this.avatar;
         return data;
     }
 }
@@ -1685,6 +1692,7 @@ export interface IUserDto {
     phoneNumber?: string | undefined;
     roleGroupId?: string | undefined;
     password?: string | undefined;
+    avatar?: string | undefined;
 }
 
 export class UserDtoPagedResultDto implements IUserDtoPagedResultDto {

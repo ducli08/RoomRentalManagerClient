@@ -33,6 +33,7 @@
     <tr>
       <th [nzChecked]="checked" [nzIndeterminate]="indeterminate" nzLabel="Select all"
         (nzCheckedChange)="onAllChecked($event)"></th>
+      <th>Ảnh đại diện</th>
       <th>Tên</th>
       <th>Email</th>
       <th>Tỉnh/TP</th>
@@ -52,6 +53,12 @@
       <td [nzChecked]="data.id !== undefined && setOfCheckedId.has(data.id)"
         [nzLabel]="data.name !== undefined ? data.name : null"
         (nzCheckedChange)="onItemChecked(data.id !== undefined ? data.id : 0, $event)"></td>
+      <td>
+        <ng-container>
+          <img nz-image [nzSrc]="'https://localhost:7246' + data.avatar" nzAlt="avatar"
+            style="width: 50px; height: 50px; margin-right: 5px;" />
+        </ng-container>
+      </td>
       <td>{{ data.name }}</td>
       <td>{{ data.email }}</td>
       <td>{{ getProvinceName(data.provinceCode) }}</td>

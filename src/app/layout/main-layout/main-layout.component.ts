@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
@@ -12,4 +12,17 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 })
 export class MainLayoutComponent {
   isCollapsed = false;
+  userName = 'User';
+  avatarUrl?: string;
+
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {
+    const user = localStorage.getItem('user');
+    if (user) {
+      const userData = JSON.parse(user);
+      this.userName = userData.name;
+      this.avatarUrl = userData.avatar;
+    }
+  }
 }

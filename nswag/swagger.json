@@ -762,6 +762,10 @@
           "password": {
             "type": "string",
             "nullable": true
+          },
+          "avatar": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -1091,6 +1095,10 @@
             "nullable": true
           },
           "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar": {
             "type": "string",
             "nullable": true
           }
