@@ -12,19 +12,22 @@
               <nz-option *ngFor="let opt of field.options ? field.options() : []" [nzValue]="opt.value ?? null"
                 [nzLabel]="opt.text ?? null"></nz-option>
             </nz-select>
-            <nz-date-picker style="width: 100%;" *ngSwitchCase="'datetime'" [(ngModel)]="roomRentalFilterDto[field.key]" 
-              id ="dateOfBirth" [name]="field.key"></nz-date-picker>
-            <nz-slider nzRange *ngSwitchCase="'slider'" [ngModel]="getSliderValue(field.key)" [name]="field.key" (ngModelChange)="setSliderValue(field.key, $event)"></nz-slider>
+            <nz-date-picker style="width: 100%;" *ngSwitchCase="'datetime'" [(ngModel)]="roomRentalFilterDto[field.key]"
+              id="dateOfBirth" [name]="field.key"></nz-date-picker>
+            <nz-slider nzRange *ngSwitchCase="'slider'" [ngModel]="getSliderValue(field.key)" [name]="field.key"
+              (ngModelChange)="setSliderValue(field.key, $event)"></nz-slider>
           </ng-container>
         </nz-form-control>
       </nz-form-item>
     </div>
   </ng-container>
-  <button nz-button nzType="primary" (click)="getAllRoomRentals()" style="align-self: flex-end;"><nz-icon nzType="search" nzTheme="outline" />Tìm kiếm</button>
+  <button nz-button nzType="primary" (click)="getAllRoomRentals()" style="align-self: flex-end;"><nz-icon
+      nzType="search" nzTheme="outline" />Tìm kiếm</button>
 </form>
 <br>
 <div>
-  <button nz-button nzType="primary" (click)="openCreateRoomRentalModal()"><nz-icon nzType="user-add" nzTheme="outline" />Tạo mới phòng cho thuê</button>
+  <button nz-button nzType="primary" (click)="openCreateRoomRentalModal()"><nz-icon nzType="user-add"
+      nzTheme="outline" />Tạo mới phòng cho thuê</button>
 </div>
 <br>
 <nz-table #rowSelectionTable nzShowPagination nzShowSizeChanger [nzData]="roomRentals" [nzTotal]="total"
@@ -54,22 +57,27 @@
         [nzLabel]="data.note !== undefined ? data.note : null"
         (nzCheckedChange)="onItemChecked(data.id !== undefined ? data.id : 0, $event)"></td>
       <td>{{ data.roomNumber }}</td>
-    <td>{{ data.roomType !== undefined ? getRoomTypeText(data.roomType) : '' }}</td>
+      <td>{{ data.roomType !== undefined ? getRoomTypeText(data.roomType) : '' }}</td>
       <td>{{ data.price }}</td>
-    <td>{{ data.statusRoom !== undefined ? getRoomStatusText(data.statusRoom) : '' }}</td>
+      <td>{{ data.statusRoom !== undefined ? getRoomStatusText(data.statusRoom) : '' }}</td>
       <td>{{ data.note }}</td>
       <td>{{ data.area }}</td>
       <td>
-       <ng-container *ngFor="let img of data.imagesDescription">
-          <img nz-image [nzSrc]="'https://localhost:7246' + img"  style="width: 50px; height: 50px; margin-right: 5px;" />
+        <ng-container *ngFor="let img of data.imagesDescription">
+          <img nz-image [nzSrc]="'https://localhost:7246' + img"
+            style="width: 50px; height: 50px; margin-right: 5px;" />
         </ng-container>
       </td>
-      <td>{{ data.createdDate | date: 'dd/MM/yyyy' }}</td>  
+      <td>{{ data.createdDate | date: 'dd/MM/yyyy' }}</td>
       <td>{{ data.updatedDate | date: 'dd/MM/yyyy' }}</td>
       <td>{{ data.creatorUser }}</td>
-        <td>{{ data.lastUpdateUser }}</td>
-        <td>
+      <td>{{ data.lastUpdateUser }}</td>
+      <td>
         <nz-icon nzType="edit" nzTheme="outline" (click)="openEditRoomRentalModal(data)" />
+        <button nz-button nzType="link" (click)="openDeleteRoomRentalModal(data.id ?? 0)"
+          style="padding:0; display:inline-flex">
+          <nz-icon nzType="delete" nzTheme="outline" style="color:#ff4d4f; cursor:pointer"></nz-icon>
+        </button>
       </td>
     </tr>
   </tbody>

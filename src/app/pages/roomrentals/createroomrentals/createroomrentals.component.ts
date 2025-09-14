@@ -1,5 +1,5 @@
 import { CreateOrEditRoomRentalDto, SelectListItem, ServiceProxy } from '../../../shared/service.proxies';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NzFormItemComponent, NzFormLabelComponent, NzFormControlComponent } from 'ng-zorro-antd/form';
@@ -36,6 +36,7 @@ export class CreateRoomRentalsComponent implements OnInit {
   fileList: NzUploadFile[] = [];
   previewImage: string | undefined = '';
   previewVisible = false;
+  @Output() saved = new EventEmitter<void>();
 
   handlePreview = async (file: NzUploadFile): Promise<void> => {
     if (!file.url && !file['preview']) {
@@ -163,15 +164,33 @@ export class CreateRoomRentalsComponent implements OnInit {
         switchMap(imagePaths => {
           roomRentalDto.imagesDescription = imagePaths;
           roomRentalDto.id = 0; // Set ID to 0 for new creation
-          return this.serviceProxy.createOrEditRoomRental(roomRentalDto);
+          return this.serviceProxy.createOrEdit(roomRentalDto);
         })
       ).subscribe(() => {
-        alert('Phòng cho thuê đã được tạo thành công!');
         this.createRoomRentalForm.reset();
+        this.clearImages();
+        this.saved.emit();
       }, error => {
         console.error('Error creating room rental:', error);
       });
     }
+  }
+
+  private clearImages(): void {
+    // Revoke any object URLs created with URL.createObjectURL to avoid memory leaks
+    this.fileList.forEach(f => {
+      const thumb = (f as any).thumnbUrl;
+      if (typeof thumb === 'string' && thumb.startsWith('blob:')) {
+        try {
+          URL.revokeObjectURL(thumb);
+        } catch (e) {
+          // ignore revoke errors
+        }
+      }
+    });
+    this.fileList = [];
+    this.previewImage = '';
+    this.previewVisible = false;
   }
   ngOnInit(): void {
     const cachedRoomTypes = this.memoryCache.get<SelectListItem[]>('roomType');

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RoomRentalDto, RoomRentalFilterDto, SelectListItem, RoomRentalFilterDtoPagedRequestDto, RoomType, RoomStatus, ServiceProxy } from '../../shared/service.proxies';
 import { Data } from '@angular/router';
 import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { CategoryCacheService } from '../../shared/category-cache.service';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -18,7 +19,7 @@ import { EditRoomRentalsComponent } from './editroomrentals/editroomrentals.comp
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { SelectListItemService } from '../../shared/get-select-list-item.service';
 import { NzImageModule } from 'ng-zorro-antd/image';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, take } from 'rxjs';
 
 @Component({
   selector: 'app-roomrentals',
@@ -59,7 +60,7 @@ export class RoomrentalsComponent {
     options?: () => SelectListItem[];
     placeholder?: string;
   }> = [];
-  constructor(private _serviceProxy: ServiceProxy, private _getSelectListItem: SelectListItemService, private modalService: NzModalService, private memoryCache: CategoryCacheService) { }
+  constructor(private _serviceProxy: ServiceProxy, private _getSelectListItem: SelectListItemService, private modalService: NzModalService, private memoryCache: CategoryCacheService, private notification: NzNotificationService) { }
   onPageChange(page: number): void {
     this.pageIndex = page;
     this.roomRentalRequestDto.page = page;
@@ -195,7 +196,7 @@ export class RoomrentalsComponent {
       });
   }
   openCreateRoomRentalModal(): void {
-    this.modalService.create({
+    const modal =this.modalService.create({
       nzTitle: 'Tạo phòng cho thuê mới',
       nzContent: CreateRoomRentalsComponent,
       nzWidth: '600px',
@@ -218,6 +219,16 @@ export class RoomrentalsComponent {
         },
       ]
     });
+
+    const contentComp = modal.getContentComponent() as CreateRoomRentalsComponent | null;
+    if (contentComp) {
+      const sub = contentComp.saved.pipe(take(1)).subscribe(() => {
+        this.getAllRoomRentals();
+        this.notification.success('Thành công', 'Phòng cho thuê đã được tạo.');
+        modal.close();
+        sub.unsubscribe();
+      });
+    }
   }
 
   openEditRoomRentalModal(roomrental: RoomRentalDto): void {
@@ -256,5 +267,28 @@ export class RoomrentalsComponent {
     const found = this.lstRoomStatuses.find(item => Number(item.value) === Number(value));
     return found ? found.text ?? '' : '';
   };
+
+  openDeleteRoomRentalModal(id: number): void {
+    this.modalService.confirm({
+      nzTitle: 'Xóa phòng cho thuê',
+      nzContent: '<p>Bạn có chắc chắn muốn xóa phòng cho thuê này?</p><p style="color: red; font-weight: bold;">Lưu ý: Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan đến phòng cho thuê này.</p>',
+      nzOkText: 'Xóa',
+      nzOkType: 'primary',
+      nzOkDanger: true,
+      nzOnOk: () => {
+        this._serviceProxy.roomRentalDELETE(id).subscribe({
+          next: () => {
+            this.getAllRoomRentals();
+            this.notification.success('Xóa thành công', 'Phòng cho thuê đã được xóa thành công.');
+          },
+          error: (err) => {
+            console.error('Error deleting room rental:', err);
+            this.notification.error('Lỗi', 'Không thể xóa phòng cho thuê. Vui lòng thử lại.');
+          },
+        });
+      },
+      nzCancelText: 'Hủy',
+    });
+  }
 }
 
