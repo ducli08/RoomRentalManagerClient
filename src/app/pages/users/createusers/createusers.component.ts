@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { forkJoin, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -28,6 +28,7 @@ export class CreateUsersComponent implements OnInit {
   lstProvinces: any[] = [];
   lstDistricts: any[] = [];
   lstWards: any[] = [];
+  @Output() saved = new EventEmitter<void>();
   // dynamic controls array (for template loop)
   controlRequestArray: Array<{
     label: string;
@@ -123,19 +124,17 @@ export class CreateUsersComponent implements OnInit {
         }));
 
       // upload avatar first (if any), then create user
-      const upload$ = fileParameters.length ? this.serviceProxy.uploadImageDescription(fileParameters) : of([] as string[]);
-      upload$.pipe(
-        switchMap((imagePaths: string[]) => {
-          if (imagePaths && imagePaths.length) {
-            userDto.avatar = imagePaths[0];
-          }
+      this.serviceProxy.uploadAvatar(fileParameters).pipe(
+        switchMap(imagePaths => {
+          userDto.avatar = imagePaths[0];
+          userDto.id = 0; // Set ID to 0 for new creation
           return this.serviceProxy.createOrEditUser(userDto);
         })
       ).subscribe(() => {
-        alert('Người dùng đã được tạo thành công!');
         this.createUserForm.reset();
-        this.fileList = [];
-      }, (error: any) => {
+        this.clearImages();
+        this.saved.emit();
+      }, error => {
         console.error('Error creating user:', error);
       });
     }
@@ -146,5 +145,21 @@ export class CreateUsersComponent implements OnInit {
     this.lstWards = this.memoryCache.get('wards') || [];
     // initialize controls after cached lists loaded
     this.initializeFormControls();
+  }
+  private clearImages(): void {
+    // Revoke any object URLs created with URL.createObjectURL to avoid memory leaks
+    this.fileList.forEach(f => {
+      const thumb = (f as any).thumnbUrl;
+      if (typeof thumb === 'string' && thumb.startsWith('blob:')) {
+        try {
+          URL.revokeObjectURL(thumb);
+        } catch (e) {
+          // ignore revoke errors
+        }
+      }
+    });
+    this.fileList = [];
+    this.previewImage = '';
+    this.previewVisible = false;
   }
 }

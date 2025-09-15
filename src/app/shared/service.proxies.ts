@@ -907,6 +907,69 @@ export class ServiceProxy {
         }
         return _observableOf<void>(null as any);
     }
+
+    /**
+     * @param avatar (optional) 
+     * @return Success
+     */
+    uploadAvatar(avatar: FileParameter[] | undefined): Observable<string[]> {
+        let url_ = this.baseUrl + "/api/User/uploadAvatar";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (avatar === null || avatar === undefined)
+            throw new globalThis.Error("The parameter 'avatar' cannot be null.");
+        else
+            avatar.forEach(item_ => content_.append("avatar", item_.data, item_.fileName ? item_.fileName : "avatar") );
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUploadAvatar(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUploadAvatar(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<string[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<string[]>;
+        }));
+    }
+
+    protected processUploadAvatar(response: HttpResponseBase): Observable<string[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let images: string[] = [];
+                try{
+                    images = _responseText ? JSON.parse(_responseText).paths : [];
+                }
+                catch(e) {
+                    console.error('Error parsing response:', e);
+                    images = [];
+                }
+                return _observableOf(images);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf([] as string[]);
+    }
 }
 
 export class CreateOrEditRoomRentalDto implements ICreateOrEditRoomRentalDto {
