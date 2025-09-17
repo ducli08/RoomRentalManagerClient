@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ServiceProxy } from '../../shared/service.proxies';
+import { AuthService } from '../../shared/auth.service';
 @Component({
   selector: 'app-login',
   imports: [FormsModule],
@@ -13,7 +13,7 @@ export class LoginComponent implements OnInit {
   username: string = '';
   password: string = '';
   rememberMe: boolean = false;
-  constructor(private router: Router, private _serviceProxy: ServiceProxy) { }
+  constructor(private router: Router, private auth: AuthService) { }
 
   ngOnInit(): void {
     // Initialize any data or services needed for the login component
@@ -21,29 +21,19 @@ export class LoginComponent implements OnInit {
 
   onLogin(): void {
     if (this.username && this.password) {
-      if (this.rememberMe) {
-        this._serviceProxy.login(this.username, this.password, this.rememberMe).subscribe(
-          (res: any) => {
-            if (res && res.accessToken) {
-              localStorage.setItem('access_token', res.accessToken);
-              localStorage.setItem('user', JSON.stringify(res.user));
-              if (this.rememberMe) {
-                localStorage.setItem('remember_me', 'true');
-              } else {
-                localStorage.removeItem('remember_me');
-              }
-              this.router.navigate(['/main']);
-            } else {
-              console.error('Login failed: Invalid response', res);}
-          },
-          (error) => {
-            console.error('Login failed', error);
+      this.auth.login(this.username, this.password, this.rememberMe).subscribe(
+        (res) => {
+          if (res && res.accessToken) {
+            if (res.user) localStorage.setItem('user', JSON.stringify(res.user));
+            this.router.navigate(['/main']);
+          } else {
+            console.error('Login failed: Invalid response', res);
           }
-        );
-      }
-      else {
-        localStorage.removeItem('remember_me');
-      }
+        },
+        (error) => {
+          console.error('Login failed', error);
+        }
+      );
     }
   }
   onForgotPassword(event: Event): void {

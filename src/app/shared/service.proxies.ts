@@ -228,6 +228,58 @@ export class ServiceProxy {
      * @param body (optional) 
      * @return Success
      */
+    refresh(body: RefreshRequestDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Login/refresh";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRefresh(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRefresh(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRefresh(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
     getAllRoomRental(body: RoomRentalFilterDtoPagedRequestDto | undefined): Observable<RoomRentalDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/RoomRental/getAllRoomRentalAsync";
         url_ = url_.replace(/[?&]$/, "");
@@ -1143,7 +1195,12 @@ export interface ICreateOrEditUserDto {
 export class LoginResponseDto implements ILoginResponseDto {
     message?: string | undefined;
     accessToken?: string | undefined;
+    refreshToken?: string | undefined;
     user?: UserDto;
+    expiresAt?: Date;
+    expiresIn?: number;
+    refreshExpiresAt?: Date | undefined;
+    refreshExpiresIn?: number | undefined;
 
     constructor(data?: ILoginResponseDto) {
         if (data) {
@@ -1158,7 +1215,12 @@ export class LoginResponseDto implements ILoginResponseDto {
         if (_data) {
             this.message = _data["message"];
             this.accessToken = _data["accessToken"];
+            this.refreshToken = _data["refreshToken"];
             this.user = _data["user"] ? UserDto.fromJS(_data["user"]) : undefined as any;
+            this.expiresAt = _data["expiresAt"] ? new Date(_data["expiresAt"].toString()) : undefined as any;
+            this.expiresIn = _data["expiresIn"];
+            this.refreshExpiresAt = _data["refreshExpiresAt"] ? new Date(_data["refreshExpiresAt"].toString()) : undefined as any;
+            this.refreshExpiresIn = _data["refreshExpiresIn"];
         }
     }
 
@@ -1173,7 +1235,12 @@ export class LoginResponseDto implements ILoginResponseDto {
         data = typeof data === 'object' ? data : {};
         data["message"] = this.message;
         data["accessToken"] = this.accessToken;
+        data["refreshToken"] = this.refreshToken;
         data["user"] = this.user ? this.user.toJSON() : undefined as any;
+        data["expiresAt"] = this.expiresAt ? this.expiresAt.toISOString() : undefined as any;
+        data["expiresIn"] = this.expiresIn;
+        data["refreshExpiresAt"] = this.refreshExpiresAt ? this.refreshExpiresAt.toISOString() : undefined as any;
+        data["refreshExpiresIn"] = this.refreshExpiresIn;
         return data;
     }
 }
@@ -1181,7 +1248,12 @@ export class LoginResponseDto implements ILoginResponseDto {
 export interface ILoginResponseDto {
     message?: string | undefined;
     accessToken?: string | undefined;
+    refreshToken?: string | undefined;
     user?: UserDto;
+    expiresAt?: Date;
+    expiresIn?: number;
+    refreshExpiresAt?: Date | undefined;
+    refreshExpiresIn?: number | undefined;
 }
 
 export class ProblemDetails implements IProblemDetails {
@@ -1246,6 +1318,50 @@ export interface IProblemDetails {
     instance?: string | undefined;
 
     [key: string]: any;
+}
+
+export class RefreshRequestDto implements IRefreshRequestDto {
+    userId?: number;
+    refreshToken?: string | undefined;
+    rememberMe?: boolean;
+
+    constructor(data?: IRefreshRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.refreshToken = _data["refreshToken"];
+            this.rememberMe = _data["rememberMe"];
+        }
+    }
+
+    static fromJS(data: any): RefreshRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RefreshRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["refreshToken"] = this.refreshToken;
+        data["rememberMe"] = this.rememberMe;
+        return data;
+    }
+}
+
+export interface IRefreshRequestDto {
+    userId?: number;
+    refreshToken?: string | undefined;
+    rememberMe?: boolean;
 }
 
 export class RoomRentalDto implements IRoomRentalDto {
