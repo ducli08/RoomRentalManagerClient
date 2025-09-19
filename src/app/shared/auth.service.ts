@@ -1,12 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { tap, map, catchError } from 'rxjs/operators';
+import { Observable, of, BehaviorSubject } from 'rxjs';
+import { tap, map, catchError, finalize } from 'rxjs/operators';
 import { ServiceProxy, LoginResponseDto, RefreshRequestDto } from './service.proxies';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(private proxy: ServiceProxy, private router: Router) {}
+  private expiryTimer: any = null;
+  private refreshInProgress = false;
+  // expose current user info for UI (sidebar avatar/username)
+  public currentUser$ = new BehaviorSubject<{ username?: string; avatarUrl?: string; userId?: number } | null>(null);
+
+  constructor(private proxy: ServiceProxy, private router: Router) {
+    // start countdown if there's already a token on service init
+    this.startExpiryCountdown();
+    // populate current user from any existing token
+    this.setCurrentUserFromToken();
+  }
 
   login(username: string, password: string, rememberMe: boolean): Observable<LoginResponseDto> {
     return this.proxy.login(username, password, rememberMe).pipe(
@@ -55,24 +65,137 @@ export class AuthService {
       return of(false);
     }
 
-    const req = new RefreshRequestDto({ userId: undefined as any, refreshToken, rememberMe: true });
-    return this.proxy.refresh(req).pipe(
-      map(() => {
-        // After refresh, server might have provided new token.
-        const newTok = this.getAccessToken();
-        if (newTok) return true;
-        // If server did not return token in body, client must coordinate with backend (cookies, headers)
+    // Delegate to shared refresh logic (auto-logout on failure)
+    return this.attemptRefresh(remember, true);
+  }
+
+  startExpiryCountdown() {
+    if (this.expiryTimer) {
+      clearTimeout(this.expiryTimer);
+      this.expiryTimer = null;
+    }
+
+    const expiresAt = localStorage.getItem('expires_at') || sessionStorage.getItem('expires_at');
+    if (!expiresAt) return;
+
+    const expDate = new Date(expiresAt);
+    if (isNaN(expDate.getTime())) return;
+
+    const msUntil = expDate.getTime() - Date.now();
+    if (msUntil <= 0) {
+      this.handleExpiry();
+      return;
+    }
+
+    this.expiryTimer = setTimeout(() => this.handleExpiry(), msUntil);
+  }
+
+  private handleExpiry() {
+    if (this.refreshInProgress) return;
+    const remember = localStorage.getItem('remember_me') === 'true';
+    if (!remember) {
+      this.clearStorage();
+      this.router.navigate(['/login']);
+      return;
+    }
+    const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+    if (!refreshToken) {
+      this.clearStorage();
+      this.router.navigate(['/login']);
+      return;
+    }
+    this.attemptRefresh(true, true).subscribe((ok) => {
+    });
+  }
+
+  
+  private attemptRefresh(remember: boolean, autoLogoutOnFail = true): Observable<boolean> {
+    if (this.refreshInProgress) return of(false);
+
+    const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+    if (!refreshToken) {
+      if (autoLogoutOnFail) {
         this.clearStorage();
         this.router.navigate(['/login']);
+      }
+      return of(false);
+    }
+
+    this.refreshInProgress = true;
+  const userId = this.getUserIdFromToken();
+  const req = new RefreshRequestDto({ userId: (userId as any) || undefined as any, refreshToken, rememberMe: remember });
+    return this.proxy.refresh(req).pipe(
+      map((res: any) => {
+        // If server returned new tokens in the response body, save them.
+        if (res && (res.accessToken || res.refreshToken || res.expiresAt || res.expiresIn)) {
+          this.saveTokens(res as any, remember);
+          return true;
+        }
+        // If server did not return token in body, client must coordinate with backend (cookies, headers)
+        const newTok = this.getAccessToken();
+        if (newTok) {
+          // restart countdown if needed
+          this.startExpiryCountdown();
+          return true;
+        }
+        if (autoLogoutOnFail) {
+          this.clearStorage();
+          this.router.navigate(['/login']);
+        }
         return false;
       }),
       catchError((err) => {
         console.error('Refresh failed', err);
-        this.clearStorage();
-        this.router.navigate(['/login']);
+        if (autoLogoutOnFail) {
+          this.clearStorage();
+          this.router.navigate(['/login']);
+        }
         return of(false);
+      }),
+      finalize(() => {
+        this.refreshInProgress = false;
       })
     );
+  }
+
+  /** Set currentUser$ from the access token payload (if present) */
+  private setCurrentUserFromToken() {
+    const token = this.getAccessToken();
+    if (!token) {
+      this.currentUser$.next(null);
+      return;
+    }
+    const payload = this.parseJwt(token) || {};
+    // support WS claims produced by some backends (e.g. .NET):
+    // name: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name
+    // nameidentifier: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
+    const username =
+      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] 
+      undefined;
+    const avatarUrl = localStorage.getItem('avatar_url') || sessionStorage.getItem('avatar_url') || undefined;
+    const rawId =
+      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] 
+      undefined;
+    let userId: number | undefined = undefined;
+    if (rawId !== undefined && rawId !== null) {
+      if (typeof rawId === 'number') userId = rawId;
+      else if (typeof rawId === 'string' && /^[0-9]+$/.test(rawId)) userId = parseInt(rawId, 10);
+    }
+    this.currentUser$.next({ username, avatarUrl, userId });
+  }
+
+  /** Read numeric userId from current access token if available */
+  private getUserIdFromToken(): number | undefined {
+    const token = this.getAccessToken();
+    if (!token) return undefined;
+    const payload = this.parseJwt(token) || {};
+    const rawId =
+      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] 
+      undefined;
+    if (rawId === undefined || rawId === null) return undefined;
+    if (typeof rawId === 'number') return rawId;
+    if (typeof rawId === 'string' && /^[0-9]+$/.test(rawId)) return parseInt(rawId, 10);
+    return undefined;
   }
 
   // helpers
@@ -96,6 +219,13 @@ export class AuthService {
     }
     if (remember) localStorage.setItem('remember_me', 'true');
     else localStorage.removeItem('remember_me');
+    if(res.user?.avatar != null && res.user?.avatar != ''){
+      localStorage.setItem('avatar_url', res.user.avatar);
+    }
+    // (re)start expiry countdown based on the new expires_at value
+    this.startExpiryCountdown();
+    // update current user observable from new token
+    this.setCurrentUserFromToken();
   }
 
   private clearStorage() {
@@ -106,6 +236,13 @@ export class AuthService {
     sessionStorage.removeItem('access_token');
     sessionStorage.removeItem('refresh_token');
     sessionStorage.removeItem('expires_at');
+    // clear any pending expiry timer
+    if (this.expiryTimer) {
+      clearTimeout(this.expiryTimer);
+      this.expiryTimer = null;
+    }
+    // clear current user observable
+    this.currentUser$.next(null);
   }
 
   private parseJwt(token: string): any {

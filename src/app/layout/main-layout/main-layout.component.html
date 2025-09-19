@@ -7,8 +7,18 @@
     [nzTrigger]="null"
   >
     <div class="sidebar-logo">
-      <img src="https://ng.ant.design/assets/img/logo.svg" alt="logo">
+      <!-- user avatar + name (falls back to app logo if not logged in) -->
+      <div class="user-info" *ngIf="userName || avatarUrl; else appLogo">
+        <nz-avatar *ngIf="avatarUrl; else initials" [nzSrc]="avatarUrl" nzSize="large"></nz-avatar>
+        <ng-template #initials>
+          <nz-avatar nzSize="large">{{ (userName || 'U').charAt(0) }}</nz-avatar>
+        </ng-template>
+        <h1 class="user-name">{{ userName }}</h1>
+      </div>
+      <ng-template #appLogo>
+        <img src="https://ng.ant.design/assets/img/logo.svg" alt="logo">
         <h1></h1>
+      </ng-template>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
       <li nz-submenu nzTitle="Quản lý phòng trọ" nzIcon="home">
