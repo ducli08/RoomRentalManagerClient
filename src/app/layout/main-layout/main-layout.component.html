@@ -9,7 +9,7 @@
     <div class="sidebar-logo">
       <!-- user avatar + name (falls back to app logo if not logged in) -->
       <div class="user-info" *ngIf="userName || avatarUrl; else appLogo">
-        <nz-avatar *ngIf="avatarUrl; else initials" [nzSrc]="avatarUrl" nzSize="large"></nz-avatar>
+        <nz-avatar *ngIf="avatarUrl; else initials" [nzSrc]="'https://localhost:7246' +avatarUrl" nzSize="large"></nz-avatar>
         <ng-template #initials>
           <nz-avatar nzSize="large">{{ (userName || 'U').charAt(0) }}</nz-avatar>
         </ng-template>
