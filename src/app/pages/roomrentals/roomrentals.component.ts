@@ -41,6 +41,7 @@ export class RoomrentalsComponent {
   total = 0;
   pageIndex = 1;
   pageSize = 10;
+  previewVisible = false;
   lstUser: SelectListItem[] = [];
   lstRoomTypes: SelectListItem[] = [];
   lstRoomStatuses: SelectListItem[] = [];

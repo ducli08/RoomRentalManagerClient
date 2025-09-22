@@ -15,11 +15,13 @@ import { AuthService } from '../../shared/auth.service';
   styleUrls: ['./main-layout.component.css']
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
+  
+
+  
   isCollapsed = false;
   userName = 'User';
   avatarUrl?: string;
   private sub?: Subscription;
-
   constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {

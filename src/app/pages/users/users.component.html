@@ -28,7 +28,7 @@
 <br>
 <nz-table #rowSelectionTable nzShowPagination nzShowSizeChanger [nzData]="lstUser" [nzTotal]="total"
   [nzPageSize]="pageSize" [nzPageIndex]="pageIndex" [nzLoading]="loading" (nzPageIndexChange)="onPageChange($event)"
-  (nzPageSizeChange)="onPageSizeChange($event)">
+  (nzPageSizeChange)="onPageSizeChange($event)" [nzScroll]="{ y: '300px' }">
   <thead>
     <tr>
       <th [nzChecked]="checked" [nzIndeterminate]="indeterminate" nzLabel="Select all"
