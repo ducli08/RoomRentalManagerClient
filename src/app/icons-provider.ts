@@ -10,7 +10,10 @@ import {
   PlusOutline,
   PictureTwoTone,
   FileTwoTone,
-  DownloadOutline
+  DownloadOutline,
+  UnlockOutline,
+  LogoutOutline
 } from '@ant-design/icons-angular/icons';
 
-export const icons = [MenuFoldOutline, MenuUnfoldOutline, DashboardOutline,HomeOutline,SettingOutline,UserOutline, FormOutline, UserAddOutline,PlusOutline, PictureTwoTone, FileTwoTone, DownloadOutline];
+export const icons = [MenuFoldOutline, MenuUnfoldOutline, DashboardOutline,HomeOutline,SettingOutline,UserOutline,
+   FormOutline, UserAddOutline,PlusOutline, PictureTwoTone, FileTwoTone, DownloadOutline, UnlockOutline, LogoutOutline];
