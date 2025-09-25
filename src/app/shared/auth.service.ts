@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { tap, map, catchError, finalize } from 'rxjs/operators';
-import { ServiceProxy, LoginResponseDto, RefreshRequestDto } from './service.proxies';
+import { ServiceProxy, LoginResponseDto, RefreshRequestDto } from './services';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

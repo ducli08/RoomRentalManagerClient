@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
-import { UserFilterDtoPagedRequestDto, SelectListItem, ServiceProxy, UserDto, UserFilterDto } from '../../shared/service.proxies';
+import { UserFilterDtoPagedRequestDto, SelectListItem, ServiceProxy, UserDto, UserFilterDto } from '../../shared/services';
 import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
 import { CreateUsersComponent } from './createusers/createusers.component';
 import { CategoryCacheService } from '../../shared/category-cache.service';

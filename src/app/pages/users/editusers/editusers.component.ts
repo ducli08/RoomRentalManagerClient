@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Inject, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CreateOrEditUserDto, SelectListItem, ServiceProxy, UserDto } from '../../../shared/service.proxies';
+import { CreateOrEditUserDto, SelectListItem, ServiceProxy, UserDto } from '../../../shared/services';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NzFormItemComponent, NzFormLabelComponent, NzFormControlComponent } from 'ng-zorro-antd/form';
 import { NZ_MODAL_DATA, NzModalModule } from 'ng-zorro-antd/modal';

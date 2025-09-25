@@ -1,4 +1,4 @@
-import { CreateOrEditRoomRentalDto, SelectListItem, ServiceProxy } from '../../../shared/service.proxies';
+import { CreateOrEditRoomRentalDto, SelectListItem, ServiceProxy } from '../../../shared/services';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';

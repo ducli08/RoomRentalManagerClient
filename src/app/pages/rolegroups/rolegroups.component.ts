@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RoomRentalDto, RoomRentalFilterDto, SelectListItem, RoomRentalFilterDtoPagedRequestDto, RoomType, RoomStatus, ServiceProxy } from '../../shared/services';
+import { RoomRentalDto, RoomRentalFilterDto, SelectListItem, RoomRentalFilterDtoPagedRequestDto, RoomType, RoomStatus, ServiceProxy } from '../../shared/service.proxies';
 import { Data } from '@angular/router';
 import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
@@ -14,39 +14,23 @@ import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
-import { CreateRoomRentalsComponent } from './createroomrentals/createroomrentals.component';
-import { EditRoomRentalsComponent } from './editroomrentals/editroomrentals.component';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { SelectListItemService } from '../../shared/get-select-list-item.service';
 import { NzImageModule } from 'ng-zorro-antd/image';
 import { forkJoin, of, take } from 'rxjs';
 
 @Component({
-  selector: 'app-roomrentals',
+  selector: 'app-rolegroups',
   imports: [NzIconModule, NzFormModule, FormsModule, NzSelectModule, NzInputModule, NzGridModule,
     NzDatePickerModule, NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzSliderModule, NzImageModule],
-  templateUrl: './roomrentals.component.html',
-  styleUrls: ['./roomrentals.component.css'],
+  templateUrl: './rolegroups.component.html',
+  styleUrls: ['./rolegroups.component.css'],
   standalone: true,
 })
-export class RoomrentalsComponent {
-  checked = false;
-  loading = false;
-  indeterminate = false;
-  listOfData: readonly Data[] = [];
-  roomRentals: readonly RoomRentalDto[] = [];
-  roomRentalFilterDto: RoomRentalFilterDto = new RoomRentalFilterDto();
-  roomRentalRequestDto: RoomRentalFilterDtoPagedRequestDto = new RoomRentalFilterDtoPagedRequestDto();
-  setOfCheckedId = new Set<number>();
+export class RoleGroupsComponent {
   total = 0;
   pageIndex = 1;
   pageSize = 10;
-  previewVisible = false;
-  lstUser: SelectListItem[] = [];
-  lstRoomTypes: SelectListItem[] = [];
-  lstRoomStatuses: SelectListItem[] = [];
-  priceRange: [number, number] = [0, 100];
-  areaRange: [number, number] = [0, 100];
   filterPerRows: Array<Array<{
     label: string;
     key: keyof RoomRentalFilterDto;
