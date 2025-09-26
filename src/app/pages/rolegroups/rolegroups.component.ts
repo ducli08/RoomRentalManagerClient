@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RoomRentalDto, RoomRentalFilterDto, SelectListItem, RoomRentalFilterDtoPagedRequestDto, RoomType, RoomStatus, ServiceProxy } from '../../shared/service.proxies';
+import { RoomRentalDto, RoomRentalFilterDto, SelectListItem, RoomRentalFilterDtoPagedRequestDto, RoomType, RoomStatus, ServiceProxy } from '../../shared/services';
 import { Data } from '@angular/router';
 import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
@@ -31,6 +31,8 @@ export class RoleGroupsComponent {
   total = 0;
   pageIndex = 1;
   pageSize = 10;
+  roleGroupsFilterDto:  = new RoomRentalFilterDto();
+  roomRentalRequestDto: RoomRentalFilterDtoPagedRequestDto = new RoomRentalFilterDtoPagedRequestDto();
   filterPerRows: Array<Array<{
     label: string;
     key: keyof RoomRentalFilterDto;

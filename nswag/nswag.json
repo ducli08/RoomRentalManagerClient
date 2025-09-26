@@ -1,4 +1,5 @@
 {
+  "runtime": "Net90",
   "defaultVariables": null,
   "documentGenerator": {
     "fromDocument": {
@@ -9,14 +10,14 @@
     }
   },
   "codeGenerators": {
-    "openApiToTypeScriptClients": {
+    "openApiToTypeScriptClient": {
       "className": "{controller}ServiceProxy",
       "template": "Angular",
       "httpClass": "HttpClient",
       "useSingletonProvider": true,
       "promiseType": "Promise",
       "injectionTokenType": "InjectionToken",
-      "outputDir": "D:/Working/roomrentalmanagerclient/src/app/shared/services",
+      "output": "D:/Working/roomrentalmanagerclient/src/app/shared/service-proxies.ts",
       "generateClientClasses": true
     }
   }

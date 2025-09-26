@@ -17,7 +17,9 @@ import { CreateOrEditUserDto } from './createoredituserdto.service';
 import { UserDtoPagedResultDto } from './userdtopagedresultdto.service';
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
-
+@Injectable({
+    providedIn: 'root'
+})
 export class ServiceProxy {
     private http: HttpClient;
     private baseUrl: string;

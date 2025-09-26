@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "split-services": "node ./tool/split-services.ts"
   },
   "private": true,
   "dependencies": {
@@ -36,10 +37,5 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.6.2"
-  },
-  "scripts": {
-    "start": "ng serve",
-    "build": "ng build",
-    "split-services": "node ./tool/split-services.ts"
   }
 }
