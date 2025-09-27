@@ -1,6 +1,7 @@
 /* Auto-generated from service-proxies.ts */
 
 export class RoleGroupDto implements IRoleGroupDto {
+    id?: number;
     name?: string | undefined;
     active?: boolean;
     createdAt?: Date;
@@ -20,6 +21,7 @@ export class RoleGroupDto implements IRoleGroupDto {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.name = _data["name"];
             this.active = _data["active"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
@@ -39,6 +41,7 @@ export class RoleGroupDto implements IRoleGroupDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["name"] = this.name;
         data["active"] = this.active;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
@@ -51,6 +54,7 @@ export class RoleGroupDto implements IRoleGroupDto {
 }
 
 export interface IRoleGroupDto {
+    id?: number;
     name?: string | undefined;
     active?: boolean;
     createdAt?: Date;

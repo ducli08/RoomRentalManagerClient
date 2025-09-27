@@ -1,23 +1,22 @@
-import { Component } from '@angular/core';
-import { RoomRentalDto, RoomRentalFilterDto, SelectListItem, RoomRentalFilterDtoPagedRequestDto, RoomType, RoomStatus, ServiceProxy } from '../../shared/services';
-import { Data } from '@angular/router';
-import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
-import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { CategoryCacheService } from '../../shared/category-cache.service';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { FormsModule } from '@angular/forms';
-import { NzSelectModule } from 'ng-zorro-antd/select';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzGridModule } from 'ng-zorro-antd/grid';
-import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
-import { NzTableModule } from 'ng-zorro-antd/table';
-import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
-import { NzSliderModule } from 'ng-zorro-antd/slider';
-import { SelectListItemService } from '../../shared/get-select-list-item.service';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzImageModule } from 'ng-zorro-antd/image';
-import { forkJoin, of, take } from 'rxjs';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzSliderModule } from 'ng-zorro-antd/slider';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { forkJoin, of } from 'rxjs';
+import { CategoryCacheService } from '../../shared/category-cache.service';
+import { SelectListItemService } from '../../shared/get-select-list-item.service';
+import { RoleGroupDto, RoleGroupFilterDto, RoleGroupFilterDtoPagedRequestDto, SelectListItem, ServiceProxy } from '../../shared/services';
 
 @Component({
   selector: 'app-rolegroups',
@@ -28,21 +27,27 @@ import { forkJoin, of, take } from 'rxjs';
   standalone: true,
 })
 export class RoleGroupsComponent {
+  checked = false;
+  loading = false;
+  indeterminate = false;
+  setOfCheckedId = new Set<number>();
   total = 0;
   pageIndex = 1;
   pageSize = 10;
-  roleGroupsFilterDto:  = new RoomRentalFilterDto();
-  roomRentalRequestDto: RoomRentalFilterDtoPagedRequestDto = new RoomRentalFilterDtoPagedRequestDto();
+  lstUser: SelectListItem[] = [];
+  roleGroups: readonly RoleGroupDto[] = [];
+  roleGroupsFilterDto: RoleGroupFilterDto = new RoleGroupFilterDto();
+  roleGroupRequestDto: RoleGroupFilterDtoPagedRequestDto = new RoleGroupFilterDtoPagedRequestDto();
   filterPerRows: Array<Array<{
     label: string;
-    key: keyof RoomRentalFilterDto;
+    key: keyof RoleGroupFilterDto;
     type: string;
     options?: () => SelectListItem[];
     placeholder?: string;
   }>> = [];
   controlRequestArray: Array<{
     label: string;
-    key: keyof RoomRentalFilterDto;
+    key: keyof RoleGroupFilterDto;
     type: string;
     options?: () => SelectListItem[];
     placeholder?: string;
@@ -50,16 +55,16 @@ export class RoleGroupsComponent {
   constructor(private _serviceProxy: ServiceProxy, private _getSelectListItem: SelectListItemService, private modalService: NzModalService, private memoryCache: CategoryCacheService, private notification: NzNotificationService) { }
   onPageChange(page: number): void {
     this.pageIndex = page;
-    this.roomRentalRequestDto.page = page;
-    this.getAllRoomRentals();
+    this.roleGroupRequestDto.page = page;
+    this.getAllRoleGroups();
   }
   onPageSizeChange(pageSize: number): void {
     this.pageSize = pageSize;
-    this.roomRentalRequestDto.pageSize = pageSize;
-    this.getAllRoomRentals();
+    this.roleGroupRequestDto.pageSize = pageSize;
+    this.getAllRoleGroups();
   }
   refreshCheckedStatus(): void {
-    const listOfEnabledData = this.roomRentals;
+    const listOfEnabledData = this.roleGroups;
     this.checked = listOfEnabledData.every(({ id }) => id !== undefined && this.setOfCheckedId.has(id));
     this.indeterminate = listOfEnabledData.some(({ id }) => id !== undefined && this.setOfCheckedId.has(id)) && !this.checked;
   }
@@ -71,7 +76,7 @@ export class RoleGroupsComponent {
     }
   }
   onAllChecked(checked: boolean): void {
-    this.roomRentals
+    this.roleGroups
       .forEach(({ id }) => id !== undefined && this.updateCheckedSet(id, checked));
     this.refreshCheckedStatus();
   }
@@ -83,89 +88,58 @@ export class RoleGroupsComponent {
     return item.id;  // Hoặc bất kỳ thuộc tính duy nhất nào của item
   }
   ngOnInit(): void {
-    const cachedRoomTypes = this.memoryCache.get<SelectListItem[]>('roomType');
-    const cachedRoomStatus = this.memoryCache.get<SelectListItem[]>('roomStatus');
     const cachedUsers = this.memoryCache.get<SelectListItem[]>('user');
     const userObservable = cachedUsers ? of(cachedUsers) : this._getSelectListItem.getSelectListItems("user", "");
-    const roomTypeObservable = cachedRoomTypes ? of(cachedRoomTypes) : this._getSelectListItem.getEnumSelectListItems("roomType")
-    const roomStatusObservable = cachedRoomStatus ? of(cachedRoomStatus) : this._getSelectListItem.getEnumSelectListItems("roomStatus")
-    this.roomRentalFilterDto.roomNumber = "";
-    this.roomRentalFilterDto.roomType = undefined;
-    this.roomRentalFilterDto.priceStart = this.priceRange[0].toString();
-    this.roomRentalFilterDto.priceEnd = this.priceRange[1].toString();
-    this.roomRentalFilterDto.statusRoom = undefined;
-    this.roomRentalFilterDto.note = "";
-    this.roomRentalFilterDto.areaStart = this.areaRange[0].toString();
-    this.roomRentalFilterDto.areaEnd = this.areaRange[1].toString();
-    this.roomRentalFilterDto.creatorUser = "";
-    this.roomRentalFilterDto.lastUpdateUser = "";
-    this.roomRentalFilterDto.createdDate = undefined;
-    this.roomRentalFilterDto.updatedDate = undefined;
-    this.roomRentalRequestDto.filter = this.roomRentalFilterDto;
-    this.roomRentalRequestDto.page = this.pageIndex;
-    this.roomRentalRequestDto.pageSize = this.pageSize;
-    this.roomRentalRequestDto.sortBy = "";
-    this.roomRentalRequestDto.sortOrder = "";
+    this.roleGroupsFilterDto.name = "";
+    this.roleGroupsFilterDto.active = undefined;
+    this.roleGroupsFilterDto.creatorUser = "";
+    this.roleGroupsFilterDto.lastUpdateUser = "";
+    this.roleGroupsFilterDto.createdAt = undefined;
+    this.roleGroupsFilterDto.updatedAt = undefined;
+    this.roleGroupRequestDto.filter = this.roleGroupsFilterDto;
+    this.roleGroupRequestDto.page = this.pageIndex;
+    this.roleGroupRequestDto.pageSize = this.pageSize;
+    this.roleGroupRequestDto.sortBy = "";
+    this.roleGroupRequestDto.sortOrder = "";
     this.controlRequestArray = [
-      { label: 'Số phòng', key: 'roomNumber', type: 'text', placeholder: 'Nhập số phòng' },
-      { label: 'Loại phòng', key: 'roomType', type: 'select', options: () => this.lstRoomTypes, placeholder: 'Chọn loại phòng' },
-      { label: 'Trạng thái phòng', key: 'statusRoom', type: 'select', options: () => this.lstRoomStatuses, placeholder: 'Chọn trạng thái phòng' },
-      { label: 'Ghi chú', key: 'note', type: 'text', placeholder: 'Nhập ghi chú' },
+      { label: 'Tên nhóm quyền', key: 'name', type: 'text', placeholder: 'Nhập tên nhóm quyền' },
+      { label: 'Trạng thái nhóm quyền', key: 'active', type: 'text', placeholder: 'Nhập trạng thái nhóm quyền' },
       { label: 'Người tạo', key: 'creatorUser', type: 'select', options: () => this.lstUser, placeholder: 'Người tạo' },
-      { label: 'Ngày tạo', key: 'createdDate', type: 'datetime', placeholder: '' },
+      { label: 'Ngày tạo', key: 'createdAt', type: 'datetime', placeholder: '' },
       { label: 'Người cập nhật', key: 'lastUpdateUser', type: 'select', options: () => this.lstUser, placeholder: 'Người cập nhật' },
-      { label: 'Ngày cập nhật', key: 'updatedDate', type: 'datetime', placeholder: '' },
-      { label: 'Diện tích', key: 'areaStart', type: 'slider', placeholder: 'Chọn khoảng: 0 - 20' },
-      { label: 'Giá tiền', key: 'priceStart', type: 'slider', placeholder: '' },
+      { label: 'Ngày cập nhật', key: 'updatedAt', type: 'datetime', placeholder: '' }
     ];
     this.filterPerRows = this.chunkArray(this.controlRequestArray, 4);
-    forkJoin([userObservable, roomTypeObservable, roomStatusObservable])
-      .subscribe(([users, roomTypes, roomStatus]) => {
+    forkJoin([userObservable])
+      .subscribe(([users]) => {
         this.lstUser = users ? users : [];
-        this.lstRoomTypes = roomTypes ? roomTypes : [];
-        this.lstRoomStatuses = roomStatus ? roomStatus : [];
         if (!cachedUsers) this.memoryCache.set('user', users);
-        if (!cachedRoomTypes) this.memoryCache.set('roomType', roomTypes);
-        if (!cachedRoomStatus) this.memoryCache.set('roomStatus', roomStatus);
       },
         error => {
           console.error('Error fetching data:', error);
         }
       );
-    this.getAllRoomRentals();
+    this.getAllRoleGroups();
   }
-  getAllRoomRentals(): void {
-    const filterToSend = new RoomRentalFilterDto();
-    Object.assign(filterToSend, this.roomRentalFilterDto);
-    if (filterToSend.roomType !== undefined) {
-      filterToSend.roomType = Number(filterToSend.roomType) as any;
+  getAllRoleGroups(): void {
+    const filterToSend = new RoleGroupFilterDto();
+    Object.assign(filterToSend, this.roleGroupsFilterDto);
+    if (filterToSend.name !== undefined) {
+      filterToSend.name = String(filterToSend.name);
     }
-    if (filterToSend.statusRoom !== undefined) {
-      filterToSend.statusRoom = Number(filterToSend.statusRoom) as any;
+    if (filterToSend.active !== undefined) {
+      filterToSend.active = Number(filterToSend.active) as any;
     }
 
-    this.roomRentalRequestDto.filter = filterToSend;
-    this._serviceProxy.getAllRoomRental(this.roomRentalRequestDto).subscribe(response => {
-      this.roomRentals = response.listItem ? response.listItem : [];
+    this.roleGroupRequestDto.filter = filterToSend;
+    this._serviceProxy.getAllRoleGroups(this.roleGroupRequestDto).subscribe(response => {
+      this.roleGroups = response.listItem ? response.listItem : [];
       this.total = response.totalCount ? response.totalCount : 0;
     }, error => {
-      console.error('Error fetching room rentals:', error);
+      console.error('Error fetching role groups:', error);
     });
   }
-  setSliderValue(key: string, range: [number, number]) {
-    if (key === 'priceStart') {
-      this.priceRange = range;
-      this.roomRentalFilterDto.priceStart = range[0].toString();
-      this.roomRentalFilterDto.priceEnd = range[1].toString();
-    } else if (key === 'areaStart') {
-      this.areaRange = range;
-      this.roomRentalFilterDto.areaStart = range[0].toString();
-      this.roomRentalFilterDto.areaEnd = range[1].toString();
-    }
-  }
-  getSliderValue(key: string): [number, number] {
-    return key === 'priceStart' ? this.priceRange : this.areaRange;
-  }
+ 
   chunkArray<T>(array: T[], chunkSize: number): T[][] {
     const result: T[][] = [];
     for (let i = 0; i < array.length; i += chunkSize) {
@@ -182,95 +156,84 @@ export class RoleGroupsComponent {
         return item;
       });
   }
-  openCreateRoomRentalModal(): void {
-    const modal =this.modalService.create({
-      nzTitle: 'Tạo phòng cho thuê mới',
-      nzContent: CreateRoomRentalsComponent,
-      nzWidth: '600px',
-      nzStyle: { height: '70vh' },
-      nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' },
-      nzFooter: [
-        {
-          label: 'Hủy',
-          onClick: () => this.modalService.closeAll(),
-        },
-        {
-          label: 'Lưu',
-          type: 'primary',
-          disabled: (componentInstance) => !componentInstance?.createRoomRentalForm.valid,
-          onClick: (componentInstance) => {
-            if (componentInstance) {
-              componentInstance.onSubmit(); // Gọi hàm submit trong component con
-            }
-          },
-        },
-      ]
-    });
+  // openCreateRoleGroupModal(): void {
+  //   const modal =this.modalService.create({
+  //     nzTitle: 'Tạo nhóm quyền mới',
+  //     nzContent: CreateRoleGroupComponent,
+  //     nzWidth: '600px',
+  //     nzStyle: { height: '70vh' },
+  //     nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' },
+  //     nzFooter: [
+  //       {
+  //         label: 'Hủy',
+  //         onClick: () => this.modalService.closeAll(),
+  //       },
+  //       {
+  //         label: 'Lưu',
+  //         type: 'primary',
+  //         disabled: (componentInstance) => !componentInstance?.createRoleGroupForm.valid,
+  //         onClick: (componentInstance) => {
+  //           if (componentInstance) {
+  //             componentInstance.onSubmit(); // Gọi hàm submit trong component con
+  //           }
+  //         },
+  //       },
+  //     ]
+  //   });
 
-    const contentComp = modal.getContentComponent() as CreateRoomRentalsComponent | null;
-    if (contentComp) {
-      const sub = contentComp.saved.pipe(take(1)).subscribe(() => {
-        this.getAllRoomRentals();
-        this.notification.success('Thành công', 'Phòng cho thuê đã được tạo.');
-        modal.close();
-        sub.unsubscribe();
-      });
-    }
-  }
+  //   const contentComp = modal.getContentComponent() as CreateRoleGroupComponent | null;
+  //   if (contentComp) {
+  //     const sub = contentComp.saved.pipe(take(1)).subscribe(() => {
+  //       this.getAllRoleGroups();
+  //       this.notification.success('Thành công', 'Nhóm quyền đã được tạo.');
+  //       modal.close();
+  //       sub.unsubscribe();
+  //     });
+  //   }
+  // }
 
-  openEditRoomRentalModal(roomrental: RoomRentalDto): void {
-    this.modalService.create<EditRoomRentalsComponent, { roomrentalData: any }, string>({
-      nzTitle: 'Chỉnh sửa phòng cho thuê',
-      nzContent: EditRoomRentalsComponent,
-      nzData: { roomrentalData: roomrental },
-      nzWidth: '600px',
-      nzStyle: { height: '70vh' },
-      nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' },
-      nzFooter: [
-        {
-          label: 'Hủy',
-          onClick: () => this.modalService.closeAll(),
-        },
-        {
-          label: 'Lưu',
-          type: 'primary',
-          disabled: (componentInstance) => !componentInstance?.editRoomRentalForm.valid,
-          onClick: (componentInstance) => {
-            if (componentInstance) {
-              componentInstance.onSubmit(); // Gọi hàm submit trong component con
-            }
-          },
-        },
-      ],
-    })
-  }
-
-  getRoomTypeText(value: RoomType): string {
-    const found = this.lstRoomTypes.find(item => Number(item.value) === Number(value));
-    return found ? found.text ?? '' : '';
-  }
-
-  getRoomStatusText(value: RoomStatus): string {
-    const found = this.lstRoomStatuses.find(item => Number(item.value) === Number(value));
-    return found ? found.text ?? '' : '';
-  };
-
-  openDeleteRoomRentalModal(id: number): void {
+  // openEditRoomRentalModal(roomrental: RoomRentalDto): void {
+  //   this.modalService.create<EditRoomRentalsComponent, { roomrentalData: any }, string>({
+  //     nzTitle: 'Chỉnh sửa phòng cho thuê',
+  //     nzContent: EditRoomRentalsComponent,
+  //     nzData: { roomrentalData: roomrental },
+  //     nzWidth: '600px',
+  //     nzStyle: { height: '70vh' },
+  //     nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' },
+  //     nzFooter: [
+  //       {
+  //         label: 'Hủy',
+  //         onClick: () => this.modalService.closeAll(),
+  //       },
+  //       {
+  //         label: 'Lưu',
+  //         type: 'primary',
+  //         disabled: (componentInstance) => !componentInstance?.editRoomRentalForm.valid,
+  //         onClick: (componentInstance) => {
+  //           if (componentInstance) {
+  //             componentInstance.onSubmit(); // Gọi hàm submit trong component con
+  //           }
+  //         },
+  //       },
+  //     ],
+  //   })
+  // }
+  openDeleteRoleGroupModal(id: number): void {
     this.modalService.confirm({
-      nzTitle: 'Xóa phòng cho thuê',
-      nzContent: '<p>Bạn có chắc chắn muốn xóa phòng cho thuê này?</p><p style="color: red; font-weight: bold;">Lưu ý: Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan đến phòng cho thuê này.</p>',
+      nzTitle: 'Xóa nhóm quyền',
+      nzContent: '<p>Bạn có chắc chắn muốn xóa nhóm quyền này?</p><p style="color: red; font-weight: bold;">Lưu ý: Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan đến nhóm quyền này.</p>',
       nzOkText: 'Xóa',
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => {
-        this._serviceProxy.roomRentalDELETE(id).subscribe({
+        this._serviceProxy.roleGroup(id).subscribe({
           next: () => {
-            this.getAllRoomRentals();
-            this.notification.success('Xóa thành công', 'Phòng cho thuê đã được xóa thành công.');
+            this.getAllRoleGroups();
+            this.notification.success('Xóa thành công', 'Nhóm quyền đã được xóa thành công.');
           },
           error: (err) => {
-            console.error('Error deleting room rental:', err);
-            this.notification.error('Lỗi', 'Không thể xóa phòng cho thuê. Vui lòng thử lại.');
+            console.error('Error deleting role group:', err);
+            this.notification.error('Lỗi', 'Không thể xóa nhóm quyền. Vui lòng thử lại.');
           },
         });
       },

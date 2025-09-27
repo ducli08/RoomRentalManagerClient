@@ -33,7 +33,7 @@ while ((match = classRegex.exec(content)) !== null) {
     const className = match[1];
     const classBody = match[0];
     let fileName = '';
-    if(!className){
+    if(!className || className.trim() === 'ServiceProxy'){
         fileName = "service.proxies.ts";
     }
     else

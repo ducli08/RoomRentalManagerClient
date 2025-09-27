@@ -1061,64 +1061,6 @@ export class ServiceProxy {
     }
 
     /**
-     * @return Success
-     */
-    getAllRoleGroup(): Observable<SelectListItem[]> {
-        let url_ = this.baseUrl + "/api/User/getAllRoleGroup";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAllRoleGroup(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetAllRoleGroup(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<SelectListItem[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<SelectListItem[]>;
-        }));
-    }
-
-    protected processGetAllRoleGroup(response: HttpResponseBase): Observable<SelectListItem[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(SelectListItem.fromJS(item));
-            }
-            else {
-                result200 = null as any;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<SelectListItem[]>([]);
-    }
-
-    /**
      * @param id (optional) 
      * @return Success
      */
@@ -1635,6 +1577,7 @@ export interface IRefreshRequestDto {
 }
 
 export class RoleGroupDto implements IRoleGroupDto {
+    id?: number;
     name?: string | undefined;
     active?: boolean;
     createdAt?: Date;
@@ -1654,6 +1597,7 @@ export class RoleGroupDto implements IRoleGroupDto {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.name = _data["name"];
             this.active = _data["active"];
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
@@ -1673,6 +1617,7 @@ export class RoleGroupDto implements IRoleGroupDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["name"] = this.name;
         data["active"] = this.active;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
@@ -1685,6 +1630,7 @@ export class RoleGroupDto implements IRoleGroupDto {
 }
 
 export interface IRoleGroupDto {
+    id?: number;
     name?: string | undefined;
     active?: boolean;
     createdAt?: Date;
