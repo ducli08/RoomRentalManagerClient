@@ -6,7 +6,7 @@ const __dirname = path.dirname(__filename);
 //
 // Cấu hình đầu vào/đầu ra
 //
-const inputFile = path.join(__dirname, "../src/app/shared/service.proxies.ts");
+const inputFile = path.join(__dirname, "../src/app/shared/service-proxies.ts");
 const outputDir = path.join(__dirname, "../src/app/shared/services");
 
 //
@@ -32,12 +32,19 @@ const exports: string[] = [];
 while ((match = classRegex.exec(content)) !== null) {
     const className = match[1];
     const classBody = match[0];
-
-    const fileName = className
+    let fileName = '';
+    if(!className){
+        fileName = "service.proxies.ts";
+    }
+    else
+    {
+        fileName = className
         .replace(/Proxy$/, "")   // bỏ hậu tố Proxy cho ngắn gọn
         .replace(/Service$/, "") // nếu class đã kết thúc bằng Service
         .toLowerCase() + ".service.ts";
-
+    }
+    
+    
     const filePath = path.join(outputDir, fileName);
 
     // Nội dung mỗi file service

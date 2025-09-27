@@ -1,25 +1,30 @@
-import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angular/common/http';
+/* Auto-generated from service-proxies.ts */
 import { mergeMap as _observableMergeMap, catchError as _observableCatch } from 'rxjs/operators';
 import { Observable, throwError as _observableThrow, of as _observableOf } from 'rxjs';
 import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angular/common/http';
 import { SelectListItem } from './selectlistitem.service';
-import { FileParameter, UserFilterDtoPagedRequestDto } from './userfilterdtopagedrequestdto.service';
 import { SelectListItemDto } from './selectlistitemdto.service';
 import { LoginResponseDto } from './loginresponsedto.service';
 import { RefreshRequestDto } from './refreshrequestdto.service';
+import { RoleGroupFilterDtoPagedRequestDto } from './rolegroupfilterdtopagedrequestdto.service';
+import { RoleGroupDtoPagedResultDto } from './rolegroupdtopagedresultdto.service';
 import { CreateOrEditRoleGroupDto } from './createoreditrolegroupdto.service';
 import { RoomRentalFilterDtoPagedRequestDto } from './roomrentalfilterdtopagedrequestdto.service';
 import { RoomRentalDtoPagedResultDto } from './roomrentaldtopagedresultdto.service';
 import { RoomRentalDto } from './roomrentaldto.service';
 import { ProblemDetails } from './problemdetails.service';
 import { CreateOrEditRoomRentalDto } from './createoreditroomrentaldto.service';
+import { FileParameter, UserFilterDtoPagedRequestDto } from './userfilterdtopagedrequestdto.service';
 import { CreateOrEditUserDto } from './createoredituserdto.service';
 import { UserDtoPagedResultDto } from './userdtopagedresultdto.service';
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
+
 @Injectable({
     providedIn: 'root'
 })
+
 export class ServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -332,34 +337,40 @@ export class ServiceProxy {
     }
 
     /**
+     * @param body (optional) 
      * @return Success
      */
-    roleGroupGET(): Observable<void> {
-        let url_ = this.baseUrl + "/api/RoleGroup";
+    getAllRoleGroups(body: RoleGroupFilterDtoPagedRequestDto | undefined): Observable<RoleGroupDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/RoleGroup/getAllRoleGroupsAsync";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRoleGroupGET(response_);
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllRoleGroups(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processRoleGroupGET(response_ as any);
+                    return this.processGetAllRoleGroups(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<RoleGroupDtoPagedResultDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<RoleGroupDtoPagedResultDto>;
         }));
     }
 
-    protected processRoleGroupGET(response: HttpResponseBase): Observable<void> {
+    protected processGetAllRoleGroups(response: HttpResponseBase): Observable<RoleGroupDtoPagedResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -368,22 +379,25 @@ export class ServiceProxy {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoleGroupDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf<RoleGroupDtoPagedResultDto>(null as any);
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    roleGroupPOST(body: CreateOrEditRoleGroupDto | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/RoleGroup";
+    createOrEditRoleGroup(body: CreateOrEditRoleGroupDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/RoleGroup/createOrEditRoleGroup";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -398,11 +412,11 @@ export class ServiceProxy {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRoleGroupPOST(response_);
+            return this.processCreateOrEditRoleGroup(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processRoleGroupPOST(response_ as any);
+                    return this.processCreateOrEditRoleGroup(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -411,62 +425,7 @@ export class ServiceProxy {
         }));
     }
 
-    protected processRoleGroupPOST(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(null as any);
-    }
-
-    /**
-     * @param body (optional) 
-     * @return Success
-     */
-    roleGroupPUT(id: number, body: CreateOrEditRoleGroupDto | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/RoleGroup/{id}";
-        if (id === undefined || id === null)
-            throw new globalThis.Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRoleGroupPUT(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRoleGroupPUT(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processRoleGroupPUT(response: HttpResponseBase): Observable<void> {
+    protected processCreateOrEditRoleGroup(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -488,7 +447,7 @@ export class ServiceProxy {
     /**
      * @return Success
      */
-    roleGroupDELETE(id: number): Observable<void> {
+    roleGroup(id: number): Observable<void> {
         let url_ = this.baseUrl + "/api/RoleGroup/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -503,11 +462,11 @@ export class ServiceProxy {
         };
 
         return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRoleGroupDELETE(response_);
+            return this.processRoleGroup(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processRoleGroupDELETE(response_ as any);
+                    return this.processRoleGroup(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -516,7 +475,7 @@ export class ServiceProxy {
         }));
     }
 
-    protected processRoleGroupDELETE(response: HttpResponseBase): Observable<void> {
+    protected processRoleGroup(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1307,14 +1266,12 @@ export class ApiException extends Error {
     }
 }
 
-
 function throwException(message: string, status: number, response: string, headers: { [key: string]: any; }, result?: any): Observable<any> {
     if (result !== null && result !== undefined)
         return _observableThrow(result);
     else
         return _observableThrow(new ApiException(message, status, response, headers, null));
 }
-
 
 function blobToText(blob: any): Observable<string> {
     return new Observable<string>((observer: any) => {

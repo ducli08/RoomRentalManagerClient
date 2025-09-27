@@ -239,23 +239,61 @@
         }
       }
     },
-    "/api/RoleGroup": {
-      "get": {
-        "tags": [
-          "RoleGroup"
-        ],
-        "operationId": "RoleGroupGET",
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      },
+    "/api/RoleGroup/getAllRoleGroupsAsync": {
       "post": {
         "tags": [
           "RoleGroup"
         ],
-        "operationId": "RoleGroupPOST",
+        "operationId": "getAllRoleGroupsAsync",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleGroupFilterDtoPagedRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleGroupFilterDtoPagedRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleGroupFilterDtoPagedRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleGroupDtoPagedResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleGroupDtoPagedResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleGroupDtoPagedResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/RoleGroup/createOrEditRoleGroup": {
+      "post": {
+        "tags": [
+          "RoleGroup"
+        ],
+        "operationId": "createOrEditRoleGroup",
         "requestBody": {
           "content": {
             "application/json": {
@@ -283,53 +321,11 @@
       }
     },
     "/api/RoleGroup/{id}": {
-      "put": {
-        "tags": [
-          "RoleGroup"
-        ],
-        "operationId": "RoleGroupPUT",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "style": "simple",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateOrEditRoleGroupDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateOrEditRoleGroupDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateOrEditRoleGroupDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      },
       "delete": {
         "tags": [
           "RoleGroup"
         ],
-        "operationId": "RoleGroupDELETE",
+        "operationId": "RoleGroup",
         "parameters": [
           {
             "name": "id",
@@ -769,45 +765,6 @@
         }
       }
     },
-    "/api/User/getAllRoleGroup": {
-      "post": {
-        "tags": [
-          "User"
-        ],
-        "operationId": "getAllRoleGroup",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SelectListItem"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SelectListItem"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SelectListItem"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/User/deleteUser": {
       "delete": {
         "tags": [
@@ -1092,6 +1049,116 @@
           },
           "rememberMe": {
             "type": "boolean"
+          }
+        }
+      },
+      "RoleGroupDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "creatorUser": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastUpdateUser": {
+            "type": "string",
+            "nullable": true
+          },
+          "descriptions": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RoleGroupDtoPagedResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "listItem": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/RoleGroupDto"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RoleGroupFilterDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "creatorUser": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastUpdateUser": {
+            "type": "string",
+            "nullable": true
+          },
+          "descriptions": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RoleGroupFilterDtoPagedRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortOrder": {
+            "type": "string",
+            "nullable": true
+          },
+          "filter": {
+            "$ref": "#/components/schemas/RoleGroupFilterDto"
           }
         }
       },

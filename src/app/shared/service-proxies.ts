@@ -329,34 +329,40 @@ export class ServiceProxy {
     }
 
     /**
+     * @param body (optional) 
      * @return Success
      */
-    roleGroupGET(): Observable<void> {
-        let url_ = this.baseUrl + "/api/RoleGroup";
+    getAllRoleGroups(body: RoleGroupFilterDtoPagedRequestDto | undefined): Observable<RoleGroupDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/RoleGroup/getAllRoleGroupsAsync";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRoleGroupGET(response_);
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllRoleGroups(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processRoleGroupGET(response_ as any);
+                    return this.processGetAllRoleGroups(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
+                    return _observableThrow(e) as any as Observable<RoleGroupDtoPagedResultDto>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<void>;
+                return _observableThrow(response_) as any as Observable<RoleGroupDtoPagedResultDto>;
         }));
     }
 
-    protected processRoleGroupGET(response: HttpResponseBase): Observable<void> {
+    protected processGetAllRoleGroups(response: HttpResponseBase): Observable<RoleGroupDtoPagedResultDto> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -365,22 +371,25 @@ export class ServiceProxy {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RoleGroupDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf<RoleGroupDtoPagedResultDto>(null as any);
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    roleGroupPOST(body: CreateOrEditRoleGroupDto | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/RoleGroup";
+    createOrEditRoleGroup(body: CreateOrEditRoleGroupDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/RoleGroup/createOrEditRoleGroup";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -395,11 +404,11 @@ export class ServiceProxy {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRoleGroupPOST(response_);
+            return this.processCreateOrEditRoleGroup(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processRoleGroupPOST(response_ as any);
+                    return this.processCreateOrEditRoleGroup(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -408,62 +417,7 @@ export class ServiceProxy {
         }));
     }
 
-    protected processRoleGroupPOST(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(null as any);
-    }
-
-    /**
-     * @param body (optional) 
-     * @return Success
-     */
-    roleGroupPUT(id: number, body: CreateOrEditRoleGroupDto | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/RoleGroup/{id}";
-        if (id === undefined || id === null)
-            throw new globalThis.Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRoleGroupPUT(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processRoleGroupPUT(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processRoleGroupPUT(response: HttpResponseBase): Observable<void> {
+    protected processCreateOrEditRoleGroup(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -485,7 +439,7 @@ export class ServiceProxy {
     /**
      * @return Success
      */
-    roleGroupDELETE(id: number): Observable<void> {
+    roleGroup(id: number): Observable<void> {
         let url_ = this.baseUrl + "/api/RoleGroup/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -500,11 +454,11 @@ export class ServiceProxy {
         };
 
         return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRoleGroupDELETE(response_);
+            return this.processRoleGroup(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processRoleGroupDELETE(response_ as any);
+                    return this.processRoleGroup(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -513,7 +467,7 @@ export class ServiceProxy {
         }));
     }
 
-    protected processRoleGroupDELETE(response: HttpResponseBase): Observable<void> {
+    protected processRoleGroup(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1678,6 +1632,226 @@ export interface IRefreshRequestDto {
     userId?: number;
     refreshToken?: string | undefined;
     rememberMe?: boolean;
+}
+
+export class RoleGroupDto implements IRoleGroupDto {
+    name?: string | undefined;
+    active?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
+    creatorUser?: string | undefined;
+    lastUpdateUser?: string | undefined;
+    descriptions?: string | undefined;
+
+    constructor(data?: IRoleGroupDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.active = _data["active"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : undefined as any;
+            this.creatorUser = _data["creatorUser"];
+            this.lastUpdateUser = _data["lastUpdateUser"];
+            this.descriptions = _data["descriptions"];
+        }
+    }
+
+    static fromJS(data: any): RoleGroupDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoleGroupDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["active"] = this.active;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : undefined as any;
+        data["creatorUser"] = this.creatorUser;
+        data["lastUpdateUser"] = this.lastUpdateUser;
+        data["descriptions"] = this.descriptions;
+        return data;
+    }
+}
+
+export interface IRoleGroupDto {
+    name?: string | undefined;
+    active?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
+    creatorUser?: string | undefined;
+    lastUpdateUser?: string | undefined;
+    descriptions?: string | undefined;
+}
+
+export class RoleGroupDtoPagedResultDto implements IRoleGroupDtoPagedResultDto {
+    listItem?: RoleGroupDto[] | undefined;
+    totalCount?: number;
+
+    constructor(data?: IRoleGroupDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["listItem"])) {
+                this.listItem = [] as any;
+                for (let item of _data["listItem"])
+                    this.listItem!.push(RoleGroupDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): RoleGroupDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoleGroupDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.listItem)) {
+            data["listItem"] = [];
+            for (let item of this.listItem)
+                data["listItem"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+}
+
+export interface IRoleGroupDtoPagedResultDto {
+    listItem?: RoleGroupDto[] | undefined;
+    totalCount?: number;
+}
+
+export class RoleGroupFilterDto implements IRoleGroupFilterDto {
+    name?: string | undefined;
+    active?: boolean;
+    createdAt?: Date | undefined;
+    updatedAt?: Date | undefined;
+    creatorUser?: string | undefined;
+    lastUpdateUser?: string | undefined;
+    descriptions?: string | undefined;
+
+    constructor(data?: IRoleGroupFilterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.active = _data["active"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : undefined as any;
+            this.creatorUser = _data["creatorUser"];
+            this.lastUpdateUser = _data["lastUpdateUser"];
+            this.descriptions = _data["descriptions"];
+        }
+    }
+
+    static fromJS(data: any): RoleGroupFilterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoleGroupFilterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["active"] = this.active;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : undefined as any;
+        data["creatorUser"] = this.creatorUser;
+        data["lastUpdateUser"] = this.lastUpdateUser;
+        data["descriptions"] = this.descriptions;
+        return data;
+    }
+}
+
+export interface IRoleGroupFilterDto {
+    name?: string | undefined;
+    active?: boolean;
+    createdAt?: Date | undefined;
+    updatedAt?: Date | undefined;
+    creatorUser?: string | undefined;
+    lastUpdateUser?: string | undefined;
+    descriptions?: string | undefined;
+}
+
+export class RoleGroupFilterDtoPagedRequestDto implements IRoleGroupFilterDtoPagedRequestDto {
+    page?: number;
+    pageSize?: number;
+    sortBy?: string | undefined;
+    sortOrder?: string | undefined;
+    filter?: RoleGroupFilterDto;
+
+    constructor(data?: IRoleGroupFilterDtoPagedRequestDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.page = _data["page"];
+            this.pageSize = _data["pageSize"];
+            this.sortBy = _data["sortBy"];
+            this.sortOrder = _data["sortOrder"];
+            this.filter = _data["filter"] ? RoleGroupFilterDto.fromJS(_data["filter"]) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): RoleGroupFilterDtoPagedRequestDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoleGroupFilterDtoPagedRequestDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["page"] = this.page;
+        data["pageSize"] = this.pageSize;
+        data["sortBy"] = this.sortBy;
+        data["sortOrder"] = this.sortOrder;
+        data["filter"] = this.filter ? this.filter.toJSON() : undefined as any;
+        return data;
+    }
+}
+
+export interface IRoleGroupFilterDtoPagedRequestDto {
+    page?: number;
+    pageSize?: number;
+    sortBy?: string | undefined;
+    sortOrder?: string | undefined;
+    filter?: RoleGroupFilterDto;
 }
 
 export class RoomRentalDto implements IRoomRentalDto {
