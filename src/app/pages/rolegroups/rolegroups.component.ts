@@ -13,10 +13,11 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { NzTableModule } from 'ng-zorro-antd/table';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, take } from 'rxjs';
 import { CategoryCacheService } from '../../shared/category-cache.service';
 import { SelectListItemService } from '../../shared/get-select-list-item.service';
 import { RoleGroupDto, RoleGroupFilterDto, RoleGroupFilterDtoPagedRequestDto, SelectListItem, ServiceProxy } from '../../shared/services';
+import { CreateRoleGroupsComponent } from './createrolegroups/createrolegroups.component';
 
 @Component({
   selector: 'app-rolegroups',
@@ -91,6 +92,7 @@ export class RoleGroupsComponent {
     const cachedUsers = this.memoryCache.get<SelectListItem[]>('user');
     const userObservable = cachedUsers ? of(cachedUsers) : this._getSelectListItem.getSelectListItems("user", "");
     this.roleGroupsFilterDto.name = "";
+    this.roleGroupsFilterDto.descriptions = "";
     this.roleGroupsFilterDto.active = undefined;
     this.roleGroupsFilterDto.creatorUser = "";
     this.roleGroupsFilterDto.lastUpdateUser = "";
@@ -156,41 +158,41 @@ export class RoleGroupsComponent {
         return item;
       });
   }
-  // openCreateRoleGroupModal(): void {
-  //   const modal =this.modalService.create({
-  //     nzTitle: 'Tạo nhóm quyền mới',
-  //     nzContent: CreateRoleGroupComponent,
-  //     nzWidth: '600px',
-  //     nzStyle: { height: '70vh' },
-  //     nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' },
-  //     nzFooter: [
-  //       {
-  //         label: 'Hủy',
-  //         onClick: () => this.modalService.closeAll(),
-  //       },
-  //       {
-  //         label: 'Lưu',
-  //         type: 'primary',
-  //         disabled: (componentInstance) => !componentInstance?.createRoleGroupForm.valid,
-  //         onClick: (componentInstance) => {
-  //           if (componentInstance) {
-  //             componentInstance.onSubmit(); // Gọi hàm submit trong component con
-  //           }
-  //         },
-  //       },
-  //     ]
-  //   });
+  openCreateRoleGroupModal(): void {
+    const modal =this.modalService.create({
+      nzTitle: 'Tạo nhóm quyền mới',
+      nzContent: CreateRoleGroupsComponent,
+      nzWidth: '600px',
+      nzStyle: { height: '70vh' },
+      nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' },
+      nzFooter: [
+        {
+          label: 'Hủy',
+          onClick: () => this.modalService.closeAll(),
+        },
+        {
+          label: 'Lưu',
+          type: 'primary',
+          disabled: (componentInstance) => !componentInstance?.createRoleGroupForm.valid,
+          onClick: (componentInstance) => {
+            if (componentInstance) {
+              componentInstance.onSubmit(); // Gọi hàm submit trong component con
+            }
+          },
+        },
+      ]
+    });
 
-  //   const contentComp = modal.getContentComponent() as CreateRoleGroupComponent | null;
-  //   if (contentComp) {
-  //     const sub = contentComp.saved.pipe(take(1)).subscribe(() => {
-  //       this.getAllRoleGroups();
-  //       this.notification.success('Thành công', 'Nhóm quyền đã được tạo.');
-  //       modal.close();
-  //       sub.unsubscribe();
-  //     });
-  //   }
-  // }
+    const contentComp = modal.getContentComponent() as CreateRoleGroupsComponent | null;
+    if (contentComp) {
+      const sub = contentComp.saved.pipe(take(1)).subscribe(() => {
+        this.getAllRoleGroups();
+        this.notification.success('Thành công', 'Nhóm quyền đã được tạo.');
+        modal.close();
+        sub.unsubscribe();
+      });
+    }
+  }
 
   // openEditRoomRentalModal(roomrental: RoomRentalDto): void {
   //   this.modalService.create<EditRoomRentalsComponent, { roomrentalData: any }, string>({

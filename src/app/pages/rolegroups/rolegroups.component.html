@@ -21,7 +21,7 @@
   </ng-container>
   <button nz-button nzType="primary" (click)="getAllRoleGroups()" style="align-self: flex-end;"><nz-icon
       nzType="search" nzTheme="outline" />Tìm kiếm</button>
-  <button nz-button nzType="primary" class="btn-gap"><nz-icon nzType="user-add"
+  <button nz-button nzType="primary" class="btn-gap" (click)="openCreateRoleGroupModal()"><nz-icon nzType="user-add"
       nzTheme="outline" />Tạo mới nhóm quyền</button>
 </form>
 <br>
@@ -33,13 +33,8 @@
     <tr>
       <th [nzChecked]="checked" [nzIndeterminate]="indeterminate" nzLabel="Select all"
         (nzCheckedChange)="onAllChecked($event)"></th>
-      <th>Số phòng</th>
-      <th>Loại phòng</th>
-      <th>Giá tiền</th>
-      <th>Trạng thái phòng</th>
-      <th>Ghi chú</th>
-      <th>Diện tích(m2)</th>
-      <th>Ảnh mô tả</th>
+      <th>Tên nhóm quyền</th>
+      <th>Trạng thái</th>
       <th>Ngày tạo</th>
       <th>Ngày cập nhật</th>
       <th>Người tạo</th>
@@ -50,36 +45,17 @@
   <tbody>
     <tr *ngFor="let data of rowSelectionTable.data; trackBy: trackData">
       <td [nzChecked]="data.id !== undefined && setOfCheckedId.has(data.id)"
-        [nzLabel]="data.note !== undefined ? data.note : null"
+        [nzLabel]="''"
         (nzCheckedChange)="onItemChecked(data.id !== undefined ? data.id : 0, $event)"></td>
-      <td>{{ data.roomNumber }}</td>
-      <td>{{ data.roomType !== undefined ? getRoomTypeText(data.roomType) : '' }}</td>
-      <td>{{ data.price }}</td>
-      <td>{{ data.statusRoom !== undefined ? getRoomStatusText(data.statusRoom) : '' }}</td>
-      <td>{{ data.note }}</td>
-      <td>{{ data.area }}</td>
-      <td>
-        <div class="image-wrapper" (click)="previewVisible = true" *ngIf="data.imagesDescription">
-          <img nz-image [nzSrc]="'https://localhost:7246' + data.imagesDescription[0]"
-            style="width: 50px; height: 50px; margin-right: 5px; cursor: pointer;" />
-          <div class="overlay" *ngIf="data.imagesDescription.length > 1">
-            +{{ data.imagesDescription.length - 1 }}
-          </div>
-        </div>
-
-        <nz-image-group *ngIf="previewVisible">
-          <ng-container *ngFor="let img of data.imagesDescription">
-            <img nz-image [nzSrc]="'https://localhost:7246' + img" style="display:none;" />
-          </ng-container>
-        </nz-image-group>
-      </td>
-      <td>{{ data.createdDate | date: 'dd/MM/yyyy' }}</td>
-      <td>{{ data.updatedDate | date: 'dd/MM/yyyy' }}</td>
+      <td>{{ data.name }}</td>
+      <td>{{ data.active !== undefined ? data.active : '' }}</td>
+      <td>{{ data.createdAt | date: 'dd/MM/yyyy' }}</td>
+      <td>{{ data.updatedAt | date: 'dd/MM/yyyy' }}</td>
       <td>{{ data.creatorUser }}</td>
       <td>{{ data.lastUpdateUser }}</td>
       <td>
-        <nz-icon nzType="edit" nzTheme="outline" (click)="openEditRoomRentalModal(data)" />
-        <button nz-button nzType="link" (click)="openDeleteRoomRentalModal(data.id ?? 0)"
+        <nz-icon nzType="edit" nzTheme="outline" />
+        <button nz-button nzType="link"
           style="padding:0; display:inline-flex">
           <nz-icon nzType="delete" nzTheme="outline" style="color:#ff4d4f; cursor:pointer"></nz-icon>
         </button>
