@@ -12,33 +12,15 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
 import { CategoryCacheService } from '../../../shared/category-cache.service';
 import { SelectListItemService } from '../../../shared/get-select-list-item.service';
-import { CreateOrEditRoleGroupDto, SelectListItem, ServiceProxy } from '../../../shared/services';
+import { CreateOrEditRoleGroupDto, RoleDto, SelectListItem, ServiceProxy } from '../../../shared/services';
+import { Observable, tap } from 'rxjs';
 interface TreeNode {
     name: string;
     disabled?: boolean;
     children?: TreeNode[];
 }
 
-const TREE_DATA: TreeNode[] = [
-    {
-        name: '0-0',
-        disabled: true,
-        children: [{ name: '0-0-0' }, { name: '0-0-1' }, { name: '0-0-2' }]
-    },
-    {
-        name: '0-1',
-        children: [
-            {
-                name: '0-1-0',
-                children: [{ name: '0-1-0-0' }, { name: '0-1-0-1' }]
-            },
-            {
-                name: '0-1-1',
-                children: [{ name: '0-1-1-0' }, { name: '0-1-1-1' }]
-            }
-        ]
-    }
-];
+const TREE_DATA: TreeNode[] = [];
 
 interface FlatNode {
     expandable: boolean;
@@ -226,7 +208,28 @@ export class CreateRoleGroupsComponent implements OnInit {
         }
     }
 
+    onMapRolesToTree(roles: RoleDto[]): void {
+        // Giả sử lstUser là mảng các quyền đã lấy từ API
+       const treeData: TreeNode[] = roles.map(role => {
+            const node: TreeNode = {
+                name: role.name || '',
+                disabled: false,
+                children: role.permissions?.map(permission => ({
+                    name: permission.name || '',
+                    id: permission.id || 0,
+                    disabled: false
+                })) || []
+            };
+            return node;
+        });
+    }
+
     ngOnInit(): void {
         this.initializeFormControls();
+        this.serviceProxy.getAllRole().pipe(
+            tap(result => {
+                this.onMapRolesToTree(result);
+            })
+        ).subscribe();
     }
 }
