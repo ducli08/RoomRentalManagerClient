@@ -12,12 +12,14 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
 import { CategoryCacheService } from '../../../shared/category-cache.service';
 import { SelectListItemService } from '../../../shared/get-select-list-item.service';
-import { CreateOrEditRoleGroupDto, RoleDto, SelectListItem, ServiceProxy } from '../../../shared/services';
+import { CreateOrEditRoleGroupDto, PermissionDto, RoleDto, SelectListItem, ServiceProxy } from '../../../shared/services';
 import { Observable, tap } from 'rxjs';
+import { permission } from 'process';
 interface TreeNode {
     name: string;
     disabled?: boolean;
     children?: TreeNode[];
+    id?: number;
 }
 
 const TREE_DATA: TreeNode[] = [];
@@ -198,6 +200,20 @@ export class CreateRoleGroupsComponent implements OnInit {
     onSubmit(): void {
         if (this.createRoleGroupForm.valid) {
             const roleGroupDto: CreateOrEditRoleGroupDto = this.createRoleGroupForm.value;
+            const selectedFlat = this.checklistSelection.selected;
+            const roleDtos: RoleDto[] = [];
+            selectedFlat.forEach(node => {
+                const nestedNode = this.flatNodeMap.get(node);
+                if(!nestedNode) return;
+                if(nestedNode.name === node.name && node.expandable === true){
+                    const descendants = this.treeControl.getDescendants(node);
+                    const permissionsSelected = descendants.map(d => this.flatNodeMap.get(d))
+                    .filter((n): n is {id?:number; name: string} => !!n)
+                    .map(p => new PermissionDto({id: p.id, name: p.name}) );
+                    const roleDto = new RoleDto({id: nestedNode.id, name: nestedNode.name, permissions: permissionsSelected });
+                    roleDtos.push(roleDto);
+                }
+            })
             roleGroupDto.id = 0; // Set ID to 0 for new creation
             this.serviceProxy.createOrEdit(roleGroupDto).subscribe(() => {
                 this.createRoleGroupForm.reset();
@@ -212,6 +228,7 @@ export class CreateRoleGroupsComponent implements OnInit {
         // Giả sử lstUser là mảng các quyền đã lấy từ API
        const treeData: TreeNode[] = roles.map(role => {
             const node: TreeNode = {
+                id: role.id || 0,
                 name: role.name || '',
                 disabled: false,
                 children: role.permissions?.map(permission => ({
@@ -222,6 +239,7 @@ export class CreateRoleGroupsComponent implements OnInit {
             };
             return node;
         });
+        this.dataSource.setData(treeData);
     }
 
     ngOnInit(): void {
