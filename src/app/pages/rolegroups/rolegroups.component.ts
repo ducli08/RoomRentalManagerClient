@@ -18,6 +18,7 @@ import { CategoryCacheService } from '../../shared/category-cache.service';
 import { SelectListItemService } from '../../shared/get-select-list-item.service';
 import { RoleGroupDto, RoleGroupFilterDto, RoleGroupFilterDtoPagedRequestDto, SelectListItem, ServiceProxy } from '../../shared/services';
 import { CreateRoleGroupsComponent } from './createrolegroups/createrolegroups.component';
+import { EditRoleGroupsComponent } from './editrolegroups/editrolegroups.component';
 
 @Component({
   selector: 'app-rolegroups',
@@ -194,32 +195,32 @@ export class RoleGroupsComponent {
     }
   }
 
-  // openEditRoomRentalModal(roomrental: RoomRentalDto): void {
-  //   this.modalService.create<EditRoomRentalsComponent, { roomrentalData: any }, string>({
-  //     nzTitle: 'Chỉnh sửa phòng cho thuê',
-  //     nzContent: EditRoomRentalsComponent,
-  //     nzData: { roomrentalData: roomrental },
-  //     nzWidth: '600px',
-  //     nzStyle: { height: '70vh' },
-  //     nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' },
-  //     nzFooter: [
-  //       {
-  //         label: 'Hủy',
-  //         onClick: () => this.modalService.closeAll(),
-  //       },
-  //       {
-  //         label: 'Lưu',
-  //         type: 'primary',
-  //         disabled: (componentInstance) => !componentInstance?.editRoomRentalForm.valid,
-  //         onClick: (componentInstance) => {
-  //           if (componentInstance) {
-  //             componentInstance.onSubmit(); // Gọi hàm submit trong component con
-  //           }
-  //         },
-  //       },
-  //     ],
-  //   })
-  // }
+  openEditRoleGroupModal(roleGroup: RoleGroupDto): void {
+    this.modalService.create<EditRoleGroupsComponent, { roleGroupData: RoleGroupDto }, string>({
+      nzTitle: 'Chỉnh sửa nhóm quyền',
+      nzContent: EditRoleGroupsComponent,
+      nzData: { roleGroupData: roleGroup },
+      nzWidth: '600px',
+      nzStyle: { height: '70vh' },
+      nzBodyStyle: { overflow: 'auto', maxHeight: 'calc(70vh - 55px)' },
+      nzFooter: [
+        {
+          label: 'Hủy',
+          onClick: () => this.modalService.closeAll(),
+        },
+        {
+          label: 'Lưu',
+          type: 'primary',
+          disabled: (componentInstance) => !componentInstance?.editRoleGroupForm.valid,
+          onClick: (componentInstance) => {
+            if (componentInstance) {
+              componentInstance.onSubmit(); // Gọi hàm submit trong component con
+            }
+          },
+        },
+      ],
+    })
+  }
   openDeleteRoleGroupModal(id: number): void {
     this.modalService.confirm({
       nzTitle: 'Xóa nhóm quyền',

@@ -1,6 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RoleDto, SelectListItem, ServiceProxy } from "../../../shared/services";
+import { CategoryCacheService } from "../../../shared/category-cache.service";
+import { SelectListItemService } from "../../../shared/get-select-list-item.service";
+import { NZ_MODAL_DATA } from "ng-zorro-antd/modal";
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormControlComponent, NzFormItemComponent, NzFormLabelComponent } from 'ng-zorro-antd/form';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -10,10 +14,7 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { SelectionModel } from '@angular/cdk/collections';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
-import { CategoryCacheService } from '../../../shared/category-cache.service';
-import { SelectListItemService } from '../../../shared/get-select-list-item.service';
-import { CreateOrEditRoleGroupDto, PermissionDto, RoleDto, SelectListItem, ServiceProxy } from '../../../shared/services';
-import { Observable, tap } from 'rxjs';
+import { tap } from 'rxjs';
 interface TreeNode {
     name: string;
     disabled?: boolean;
@@ -29,20 +30,24 @@ interface FlatNode {
     level: number;
     disabled?: boolean;
 }
-
 @Component({
-    selector: 'app-createroomrentals',
-    imports: [ReactiveFormsModule, NzFormItemComponent, NzFormLabelComponent,
-        NzFormControlComponent, NzModalModule, NzInputModule, NzButtonModule,
-        CommonModule, NzIconModule, NzSwitchModule, NzTreeViewModule],
-    templateUrl: './createrolegroups.component.html',
-    styleUrl: './createrolegroups.component.css'
+    selector: 'app-editrolegroups',
+    imports: [NzButtonModule, NzFormItemComponent, NzFormLabelComponent,ReactiveFormsModule, CommonModule,
+        NzFormControlComponent, NzModalModule, NzInputModule, NzIconModule, NzSwitchModule, NzTreeViewModule],
+    templateUrl: './editrolegroups.component.html',
+    styleUrl: './editrolegroups.component.css'
 })
-
-export class CreateRoleGroupsComponent implements OnInit {
-    createRoleGroupForm!: FormGroup;
-    lstUser: SelectListItem[] = [];
-    previewVisible = false;
+export class EditRoleGroupsComponent implements OnInit {
+    isLoading = false;
+    editRoleGroupForm: FormGroup;
+    controlRequestArray: Array<{
+            label: string;
+            key: string;
+            type: string;
+            options?: () => SelectListItem[];
+            placeholder?: string;
+            validators?: any[];
+        }> = [];
     @Output() saved = new EventEmitter<void>();
     private transformer = (node: TreeNode, level: number): FlatNode => {
         const existingNode = this.nestedNodeMap.get(node);
@@ -74,24 +79,20 @@ export class CreateRoleGroupsComponent implements OnInit {
     );
 
     dataSource = new NzTreeFlatDataSource(this.treeControl, this.treeFlattener);
-    // Sử dụng lại cấu trúc controlRequestArray từ parent component
-    controlRequestArray: Array<{
-        label: string;
-        key: string;
-        type: string;
-        options?: () => SelectListItem[];
-        placeholder?: string;
-        validators?: any[];
-    }> = [];
-
-    constructor(private fb: FormBuilder, private serviceProxy: ServiceProxy, private memoryCache: CategoryCacheService, private _getSelectListItem: SelectListItemService) {
-        this.createRoleGroupForm = this.fb.group({
-            roleGroupName: ['', Validators.required],
-            active: ['', Validators.required]
+    constructor(private fb: FormBuilder, private serviceProxy: ServiceProxy, private memoryCache: CategoryCacheService,
+        private _getSelectListItem: SelectListItemService, @Inject(NZ_MODAL_DATA) public data: { roleGroupData: any }) {
+        // Initialize form with basic structure first
+        this.editRoleGroupForm = this.fb.group({
+            id: [''],
+            name: ['', Validators.required],
+            descriptions: ['', Validators.required],
+            active: [true],
+            creatorUser: [''],
+            lastUpdateUser: [''],
+            createdAt: [''],
+            updatedAt: ['']
         });
-        this.dataSource.setData(TREE_DATA);
     }
-
     hasChild = (_: number, node: FlatNode): boolean => node.expandable;
 
     descendantsAllSelected(node: FlatNode): boolean {
@@ -158,6 +159,49 @@ export class CreateRoleGroupsComponent implements OnInit {
         }
         return null;
     }
+
+    ngOnInit(): void {
+        if(this.data && this.data.roleGroupData) {
+            const roleTreeData = localStorage.getItem('role_tree_data');
+            if(roleTreeData){
+                this.dataSource.setData(roleTreeData ? JSON.parse(roleTreeData) : TREE_DATA);
+            }
+            else{
+                this.serviceProxy.getAllRole().pipe(
+                            tap(result => {
+                                this.onMapRolesToTree(result);
+                            })
+                        ).subscribe();
+            }
+            
+            this.editRoleGroupForm.patchValue(this.data.roleGroupData);
+        }
+        this.initializeFormControls();
+    }
+
+    onMapRolesToTree(roles: RoleDto[]): void {
+            // Giả sử lstUser là mảng các quyền đã lấy từ API
+           const treeData: TreeNode[] = roles.map(role => {
+                const node: TreeNode = {
+                    id: role.id || 0,
+                    name: role.name || '',
+                    disabled: false,
+                    children: role.permissions?.map(permission => ({
+                        name: permission.name || '',
+                        id: permission.id || 0,
+                        disabled: false
+                    })) || []
+                };
+                return node;
+            });
+            this.dataSource.setData(treeData);
+            localStorage.setItem('role_tree_data', JSON.stringify(treeData));
+        }
+
+    onSubmit(): void {
+
+    }
+
     initializeFormControls(): void {
         // Định nghĩa các field cho form tạo mới
         this.controlRequestArray = [
@@ -194,62 +238,6 @@ export class CreateRoleGroupsComponent implements OnInit {
             formControls[control.key] = ['', control.validators || []];
         });
 
-        this.createRoleGroupForm = this.fb.group(formControls);
-    }
-
-    onSubmit(): void {
-        if (this.createRoleGroupForm.valid) {
-            const roleGroupDto: CreateOrEditRoleGroupDto = this.createRoleGroupForm.value;
-            const selectedFlat = this.checklistSelection.selected;
-            const roleDtos: RoleDto[] = [];
-            selectedFlat.forEach(node => {
-                const nestedNode = this.flatNodeMap.get(node);
-                if(!nestedNode) return;
-                if(nestedNode.name === node.name && node.expandable === true){
-                    const descendants = this.treeControl.getDescendants(node);
-                    const permissionsSelected = descendants.map(d => this.flatNodeMap.get(d))
-                    .filter((n): n is {id?:number; name: string} => !!n)
-                    .map(p => new PermissionDto({id: p.id, name: p.name}) );
-                    const roleDto = new RoleDto({id: nestedNode.id, name: nestedNode.name, permissions: permissionsSelected });
-                    roleDtos.push(roleDto);
-                }
-            })
-            roleGroupDto.id = 0; // Set ID to 0 for new creation
-            roleGroupDto.roleDtos = roleDtos;
-            this.serviceProxy.createOrEditRoleGroup(roleGroupDto).subscribe(() => {
-                this.createRoleGroupForm.reset();
-                this.saved.emit();
-            }, error => {
-                console.error('Error creating role group:', error);
-            });
-        }
-    }
-
-    onMapRolesToTree(roles: RoleDto[]): void {
-        // Giả sử lstUser là mảng các quyền đã lấy từ API
-       const treeData: TreeNode[] = roles.map(role => {
-            const node: TreeNode = {
-                id: role.id || 0,
-                name: role.name || '',
-                disabled: false,
-                children: role.permissions?.map(permission => ({
-                    name: permission.name || '',
-                    id: permission.id || 0,
-                    disabled: false
-                })) || []
-            };
-            return node;
-        });
-        this.dataSource.setData(treeData);
-        localStorage.setItem('role_tree_data', JSON.stringify(treeData));
-    }
-
-    ngOnInit(): void {
-        this.initializeFormControls();
-        this.serviceProxy.getAllRole().pipe(
-            tap(result => {
-                this.onMapRolesToTree(result);
-            })
-        ).subscribe();
+        this.editRoleGroupForm = this.fb.group(formControls);
     }
 }
