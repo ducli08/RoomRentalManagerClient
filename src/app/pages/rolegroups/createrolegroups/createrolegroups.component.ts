@@ -14,7 +14,6 @@ import { CategoryCacheService } from '../../../shared/category-cache.service';
 import { SelectListItemService } from '../../../shared/get-select-list-item.service';
 import { CreateOrEditRoleGroupDto, PermissionDto, RoleDto, SelectListItem, ServiceProxy } from '../../../shared/services';
 import { Observable, tap } from 'rxjs';
-import { permission } from 'process';
 interface TreeNode {
     name: string;
     disabled?: boolean;
@@ -169,7 +168,7 @@ export class CreateRoleGroupsComponent implements OnInit {
         this.controlRequestArray = [
             {
                 label: 'Tên nhóm quyền',
-                key: 'roleGroupName',
+                key: 'name',
                 type: 'text',
                 placeholder: 'Nhập tên nhóm quyền'
             },
@@ -182,9 +181,15 @@ export class CreateRoleGroupsComponent implements OnInit {
             },
             {
                 label: "Nhóm quyền",
-                key: 'listRole',
+                key: 'roleDtos',
                 type: 'tree',
                 placeholder: 'Chọn nhóm quyền',
+            },
+            {
+                label: 'Mô tả',
+                key: 'descriptions',
+                type: 'text',
+                placeholder: 'Nhập mô tả',
             }
         ];
 
@@ -215,7 +220,8 @@ export class CreateRoleGroupsComponent implements OnInit {
                 }
             })
             roleGroupDto.id = 0; // Set ID to 0 for new creation
-            this.serviceProxy.createOrEdit(roleGroupDto).subscribe(() => {
+            roleGroupDto.roleDtos = roleDtos;
+            this.serviceProxy.createOrEditRoleGroup(roleGroupDto).subscribe(() => {
                 this.createRoleGroupForm.reset();
                 this.saved.emit();
             }, error => {

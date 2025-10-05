@@ -887,12 +887,11 @@
             "type": "string",
             "nullable": true
           },
-          "roleIds": {
+          "roleDtos": {
             "type": "array",
             "nullable": true,
             "items": {
-              "type": "integer",
-              "format": "int32"
+              "$ref": "#/components/schemas/RoleDto"
             }
           }
         }

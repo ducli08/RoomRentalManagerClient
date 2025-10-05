@@ -1,11 +1,13 @@
 /* Auto-generated from service-proxies.ts */
 
+import { RoleDto } from "./roledto.service";
+
 export class CreateOrEditRoleGroupDto implements ICreateOrEditRoleGroupDto {
     id?: number | undefined;
     name?: string | undefined;
     active?: boolean;
     descriptions?: string | undefined;
-    roleIds?: number[] | undefined;
+    roleDtos?: RoleDto[] | undefined;
 
     constructor(data?: ICreateOrEditRoleGroupDto) {
         if (data) {
@@ -22,10 +24,10 @@ export class CreateOrEditRoleGroupDto implements ICreateOrEditRoleGroupDto {
             this.name = _data["name"];
             this.active = _data["active"];
             this.descriptions = _data["descriptions"];
-            if (Array.isArray(_data["roleIds"])) {
-                this.roleIds = [] as any;
-                for (let item of _data["roleIds"])
-                    this.roleIds!.push(item);
+            if (Array.isArray(_data["roleDtos"])) {
+                this.roleDtos = [] as any;
+                for (let item of _data["roleDtos"])
+                    this.roleDtos!.push(RoleDto.fromJS(item));
             }
         }
     }
@@ -43,10 +45,10 @@ export class CreateOrEditRoleGroupDto implements ICreateOrEditRoleGroupDto {
         data["name"] = this.name;
         data["active"] = this.active;
         data["descriptions"] = this.descriptions;
-        if (Array.isArray(this.roleIds)) {
-            data["roleIds"] = [];
-            for (let item of this.roleIds)
-                data["roleIds"].push(item);
+        if (Array.isArray(this.roleDtos)) {
+            data["roleDtos"] = [];
+            for (let item of this.roleDtos)
+                data["roleDtos"].push(item ? item.toJSON() : undefined as any);
         }
         return data;
     }
@@ -57,7 +59,7 @@ export interface ICreateOrEditRoleGroupDto {
     name?: string | undefined;
     active?: boolean;
     descriptions?: string | undefined;
-    roleIds?: number[] | undefined;
+    roleDtos?: RoleDto[] | undefined;
 }
 
 

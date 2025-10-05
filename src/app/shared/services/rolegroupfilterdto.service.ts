@@ -2,7 +2,7 @@
 
 export class RoleGroupFilterDto implements IRoleGroupFilterDto {
     name?: string | undefined;
-    active?: boolean;
+    active?: boolean | undefined;
     createdAt?: Date | undefined;
     updatedAt?: Date | undefined;
     creatorUser?: string | undefined;
@@ -52,7 +52,7 @@ export class RoleGroupFilterDto implements IRoleGroupFilterDto {
 
 export interface IRoleGroupFilterDto {
     name?: string | undefined;
-    active?: boolean;
+    active?: boolean | undefined;
     createdAt?: Date | undefined;
     updatedAt?: Date | undefined;
     creatorUser?: string | undefined;
