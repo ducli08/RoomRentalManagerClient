@@ -384,6 +384,59 @@
         }
       }
     },
+    "/api/RoleGroup/getActivePermission": {
+      "get": {
+        "tags": [
+          "RoleGroup"
+        ],
+        "operationId": "getActivePermission",
+        "parameters": [
+          {
+            "name": "roleGroupId",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/RoomRental/getAllRoomRentalAsync": {
       "post": {
         "tags": [

@@ -201,19 +201,64 @@ export class CreateRoleGroupsComponent implements OnInit {
         if (this.createRoleGroupForm.valid) {
             const roleGroupDto: CreateOrEditRoleGroupDto = this.createRoleGroupForm.value;
             const selectedFlat = this.checklistSelection.selected;
-            const roleDtos: RoleDto[] = [];
+
+            // Map theo roleId -> { roleName, permissions }
+            const roleMap = new Map<number, { roleName: string; permissions: PermissionDto[] }>();
+
             selectedFlat.forEach(node => {
-                const nestedNode = this.flatNodeMap.get(node);
-                if(!nestedNode) return;
-                if(nestedNode.name === node.name && node.expandable === true){
-                    const descendants = this.treeControl.getDescendants(node);
-                    const permissionsSelected = descendants.map(d => this.flatNodeMap.get(d))
-                    .filter((n): n is {id?:number; name: string} => !!n)
-                    .map(p => new PermissionDto({id: p.id, name: p.name}) );
-                    const roleDto = new RoleDto({id: nestedNode.id, name: nestedNode.name, permissions: permissionsSelected });
-                    roleDtos.push(roleDto);
+                const treeNode = this.flatNodeMap.get(node);
+                if (!treeNode) return;
+
+                if (node.expandable) {
+                    // Parent node được chọn: lấy tất cả descendants làm permission
+                    const descendants = this.treeControl.getDescendants(node)
+                        .filter(d => !d.expandable); // chỉ lấy leaf là permission
+                    const permissions = descendants
+                        .map(d => this.flatNodeMap.get(d))
+                        .filter((n): n is TreeNode => !!n)
+                        .map(p => new PermissionDto({ id: p.id || 0, name: p.name }));
+
+                    const roleId = treeNode.id || 0;
+                    roleMap.set(roleId, { roleName: treeNode.name, permissions });
+                } else {
+                    // Leaf node được chọn: tìm parent (role) và thêm permission vào role đó
+                    let parent = this.getParentNode(node);
+                    let roleId: number;
+                    let roleName: string;
+
+                    if (parent) {
+                        const parentTree = this.flatNodeMap.get(parent);
+                        roleId = parentTree?.id || 0;
+                        roleName = parentTree?.name || '';
+                    } else {
+                        // Trường hợp leaf ở cấp top (không có parent) => coi chính nó là role
+                        roleId = treeNode.id || 0;
+                        roleName = treeNode.name;
+                    }
+
+                    const existing = roleMap.get(roleId);
+                    const perm = new PermissionDto({ id: treeNode.id || 0, name: treeNode.name });
+                    if (existing) {
+                        // tránh thêm trùng lặp permission theo id
+                        if (!existing.permissions.some(p => p.id === perm.id)) {
+                            existing.permissions.push(perm);
+                        }
+                    } else {
+                        roleMap.set(roleId, { roleName, permissions: [perm] });
+                    }
                 }
-            })
+            });
+
+            // Chuyển map thành mảng RoleDto
+            const roleDtos: RoleDto[] = [];
+            roleMap.forEach((value, key) => {
+                const uniquePermissions = Array.from(
+                    new Map(value.permissions.map(p => [p.id, p])).values()
+                );
+                const roleDto = new RoleDto({ id: key, name: value.roleName, permissions: uniquePermissions });
+                roleDtos.push(roleDto);
+            });
+
             roleGroupDto.id = 0; // Set ID to 0 for new creation
             roleGroupDto.roleDtos = roleDtos;
             this.serviceProxy.createOrEditRoleGroup(roleGroupDto).subscribe(() => {

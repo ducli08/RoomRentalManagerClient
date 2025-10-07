@@ -161,6 +161,7 @@ export class EditRoleGroupsComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.initializeFormControls();
         if(this.data && this.data.roleGroupData) {
             const roleTreeData = localStorage.getItem('role_tree_data');
             if(roleTreeData){
@@ -173,10 +174,17 @@ export class EditRoleGroupsComponent implements OnInit {
                             })
                         ).subscribe();
             }
-            
+            this.serviceProxy.getActivePermission(this.data.roleGroupData.id).subscribe((permissions: number[]) => {
+                // Duyệt qua tất cả các nút trong cây và chọn những nút có trong danh sách permissions
+                this.treeControl.dataNodes.forEach(node => {
+                    var idPermission = this.flatNodeMap.get(node)?.id;
+                    if (idPermission && permissions.includes(idPermission)) {
+                        this.checklistSelection.select(node);
+                    } 
+                });
+            });
             this.editRoleGroupForm.patchValue(this.data.roleGroupData);
         }
-        this.initializeFormControls();
     }
 
     onMapRolesToTree(roles: RoleDto[]): void {
