@@ -56,6 +56,7 @@ export class UsersComponent implements OnInit {
   lstProvinces: SelectListItem[] = [];
   lstDistricts: SelectListItem[] = [];
   lstWards: SelectListItem[] = [];
+  lstRoleGroups: SelectListItem[] = [];
   filterPerRows: Array<Array<{
     label: string;
     key: keyof UserFilterDto;
@@ -122,9 +123,11 @@ export class UsersComponent implements OnInit {
     const cachedProvinces = this.memoryCache.get<SelectListItem[]>('provinces');
     const cachedDistricts = this.memoryCache.get<SelectListItem[]>('districts');
     const cachedWards = this.memoryCache.get<SelectListItem[]>('wards');
+    const cachedRoleGroups = this.memoryCache.get<SelectListItem[]>('roleGroups');
     const provinceObservable = cachedProvinces ? of(cachedProvinces) : this._getSelectListItem.getSelectListItems('provinces', '');
     const districtObservable = cachedDistricts ? of(cachedDistricts) : this._getSelectListItem.getSelectListItems('districts', '');
     const wardObservable = cachedWards ? of(cachedWards) : this._getSelectListItem.getSelectListItems('wards', '');
+    const roleGroupObservable = cachedRoleGroups ? of(cachedRoleGroups) : this._getSelectListItem.getSelectListItems('roleGroups', '');
     this.controlRequestArray = [
       { label: 'Tên', key: 'nameFilter', type: 'text', placeholder: 'Tên người dùng' },
       { label: 'Tỉnh/thành', key: 'provinceCodeFilter', type: 'select', options: () => this.lstProvinces, placeholder: 'Chọn tỉnh/thành' },
@@ -136,14 +139,16 @@ export class UsersComponent implements OnInit {
       { label: 'Ngày sinh', key: 'dateOfBirth', type: 'datetime', placeholder: 'Ngày sinh' },
     ];
     this.filterPerRows = this.chunkArray(this.controlRequestArray, 4);
-    forkJoin([provinceObservable, districtObservable, wardObservable])
-      .subscribe(([provinces, districts, wards]) => {
+    forkJoin([provinceObservable, districtObservable, wardObservable, roleGroupObservable])
+      .subscribe(([provinces, districts, wards, roleGroups]) => {
         this.lstProvinces = provinces ? provinces : [];
         this.lstDistricts = districts ? districts : [];
         this.lstWards = wards ? wards : [];
+        this.lstRoleGroups = roleGroups ? roleGroups : [];
         if (!cachedProvinces) this.memoryCache.set('provinces', provinces);
         if (!cachedDistricts) this.memoryCache.set('districts', districts);
         if (!cachedWards) this.memoryCache.set('wards', wards);
+        if (!cachedRoleGroups) this.memoryCache.set('roleGroups', roleGroups);
         this.getUsers();
       },
         error => {
