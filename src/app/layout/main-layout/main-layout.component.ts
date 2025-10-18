@@ -25,7 +25,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
-    this.showUserMenu = this.hasResourcePermission('Users');
+    this.showUserMenu = this.hasResourcePermission('User');
     this.showRoomRentalMenu = this.hasResourcePermission('RoomRental');
     this.showRoleGroupMenu = this.hasResourcePermission('RoleGroups');
     this.sub = this.authService.currentUser$.subscribe(u => {
