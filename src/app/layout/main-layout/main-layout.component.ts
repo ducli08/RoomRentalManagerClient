@@ -15,9 +15,9 @@ import { AuthService } from '../../shared/auth.service';
   styleUrls: ['./main-layout.component.css']
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
-  
-
-  
+  showUserMenu = false;
+  showRoomRentalMenu = false;
+  showRoleGroupMenu = false;
   isCollapsed = false;
   userName = 'User';
   avatarUrl?: string;
@@ -25,6 +25,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
+    this.showUserMenu = this.hasResourcePermission('Users');
+    this.showRoomRentalMenu = this.hasResourcePermission('RoomRental');
+    this.showRoleGroupMenu = this.hasResourcePermission('RoleGroups');
     this.sub = this.authService.currentUser$.subscribe(u => {
       if (u) {
         this.userName = u.username || 'User';
@@ -38,5 +41,39 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
+  }
+
+  private getPermissions(): string[] {
+    try {
+      const raw = localStorage.getItem('role_group_permissions');
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      // parsed could be array of strings or array of objects with a name/property
+      if (Array.isArray(parsed)) {
+        return parsed.map(p => {
+          if (!p) return '';
+          if (typeof p === 'string') return p;
+          // try common keys if object
+          if (typeof p === 'object') {
+            return (p.permission || p.name || p.code || '').toString();
+          }
+          return p.toString();
+        }).filter(Boolean);
+      }
+      // if single string
+      if (typeof parsed === 'string') return [parsed];
+    } catch {
+      // fall through
+    }
+    return [];
+  }
+
+  private hasResourcePermission(resource: string): boolean {
+    const perms = this.getPermissions();
+    const prefix = resource.toLowerCase() + '.';
+    return perms.some(p => {
+      const s = (p || '').toLowerCase();
+      return s === resource.toLowerCase() || s.startsWith(prefix);
+    });
   }
 }

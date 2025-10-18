@@ -29,6 +29,7 @@ export class EditUsersComponent implements OnInit {
   lstProvinces: any[] = [];
   lstDistricts: any[] = [];
   lstWards: any[] = [];
+  lstRoleGroups: any[] = [];
   @Output() saved = new EventEmitter<void>();
   constructor(private fb: FormBuilder, private serviceProxy: ServiceProxy, private memoryCache: CategoryCacheService, @Inject(NZ_MODAL_DATA) public data: { userData: any }) {
     this.editUserForm = this.fb.group({
@@ -99,7 +100,7 @@ export class EditUsersComponent implements OnInit {
       { label: 'Nghề nghiệp', key: 'job', type: 'text', placeholder: 'Nhập nghề nghiệp', validators: [Validators.required] },
       { label: 'Ngày sinh', key: 'dateOfBirth', type: 'date', placeholder: '', validators: [Validators.required] },
       { label: 'Giới tính', key: 'gender', type: 'select', options: [{ value: 'M', text: 'Nam' }, { value: 'F', text: 'Nữ' }], placeholder: 'Chọn giới tính', validators: [Validators.required] },
-      { label: 'Vai trò', key: 'roleGroupId', type: 'text', placeholder: 'Nhập vai trò', validators: [Validators.required] },
+      { label: 'Nhóm quyền', key: 'roleGroupId', type: 'select', options: this.lstRoleGroups, placeholder: 'Chọn nhóm quyền', validators: [Validators.required] },
       { label: 'Xe (ID)', key: 'bikeId', type: 'text', placeholder: 'Nhập mã xe', validators: [Validators.required] },
       { label: 'Mật khẩu', key: 'password', type: 'text', placeholder: 'Nhập mật khẩu', validators: [Validators.required] },
       { label: 'SĐT', key: 'phoneNumber', type: 'text', placeholder: 'Nhập số điện thoại', validators: [Validators.required] },
@@ -124,7 +125,7 @@ export class EditUsersComponent implements OnInit {
       const userDto: CreateOrEditUserDto = this.editUserForm.value;
 
       const fileParameters = this.fileList
-        .filter(file => file.originFileObj)
+        .filter(file => file)
         .map(file => ({
           data: file.originFileObj as File,
           fileName: file.originFileObj ? (file.originFileObj as File).name : file.name
@@ -166,6 +167,7 @@ export class EditUsersComponent implements OnInit {
     this.lstDistricts = this.memoryCache.get('districts') || [];
     this.lstProvinces = this.memoryCache.get('provinces') || [];
     this.lstWards = this.memoryCache.get('wards') || [];
+    this.lstRoleGroups = this.memoryCache.get('roleGroups') || [];
     this.initializeFormControls();
     if (this.data.userData) {
       this.editUserForm.patchValue(this.data.userData);

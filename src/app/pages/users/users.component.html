@@ -45,6 +45,7 @@
       <th>Ngày tháng năm sinh</th>
       <th>Giới tính</th>
       <th>Phương tiện</th>
+      <th>Nhóm quyền</th>
       <th>Thao tác</th>
     </tr>
   </thead>
@@ -70,6 +71,7 @@
       <td>{{ data.dateOfBirth | date: 'dd/MM/yyyy' }}</td>
       <td>{{ data.gender }}</td>
       <td>{{ data.bikeId }}</td>
+      <td>{{ getRoleName(data.roleGroupId) }}</td>
       <td>
         <nz-icon nzType="edit" nzTheme="outline" (click)="openEditUserModal(data)" />
         <nz-icon nzType="delete" nzTheme="outline" (click)="openDeleteUserModal(data)" style="color:#ff4d4f; cursor:pointer"/>

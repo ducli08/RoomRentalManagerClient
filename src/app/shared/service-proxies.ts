@@ -1534,6 +1534,7 @@ export class LoginResponseDto implements ILoginResponseDto {
     expiresIn?: number;
     refreshExpiresAt?: Date | undefined;
     refreshExpiresIn?: number | undefined;
+    roleGroupPermissions?: string[] | undefined;
 
     constructor(data?: ILoginResponseDto) {
         if (data) {
@@ -1554,6 +1555,11 @@ export class LoginResponseDto implements ILoginResponseDto {
             this.expiresIn = _data["expiresIn"];
             this.refreshExpiresAt = _data["refreshExpiresAt"] ? new Date(_data["refreshExpiresAt"].toString()) : undefined as any;
             this.refreshExpiresIn = _data["refreshExpiresIn"];
+            if (Array.isArray(_data["roleGroupPermissions"])) {
+                this.roleGroupPermissions = [] as any;
+                for (let item of _data["roleGroupPermissions"])
+                    this.roleGroupPermissions!.push(item);
+            }
         }
     }
 
@@ -1574,6 +1580,11 @@ export class LoginResponseDto implements ILoginResponseDto {
         data["expiresIn"] = this.expiresIn;
         data["refreshExpiresAt"] = this.refreshExpiresAt ? this.refreshExpiresAt.toISOString() : undefined as any;
         data["refreshExpiresIn"] = this.refreshExpiresIn;
+        if (Array.isArray(this.roleGroupPermissions)) {
+            data["roleGroupPermissions"] = [];
+            for (let item of this.roleGroupPermissions)
+                data["roleGroupPermissions"].push(item);
+        }
         return data;
     }
 }
@@ -1587,6 +1598,7 @@ export interface ILoginResponseDto {
     expiresIn?: number;
     refreshExpiresAt?: Date | undefined;
     refreshExpiresIn?: number | undefined;
+    roleGroupPermissions?: string[] | undefined;
 }
 
 export class PermissionDto implements IPermissionDto {

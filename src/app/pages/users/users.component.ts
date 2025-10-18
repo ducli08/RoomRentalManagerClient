@@ -185,6 +185,11 @@ export class UsersComponent implements OnInit {
     return ward ? ward.text ?? '' : '';
   }
 
+  getRoleName(roleGroupId: string | undefined): string {
+    if (roleGroupId === undefined || roleGroupId === null) return '';
+    const roleGroup = this.lstRoleGroups.find(rg => rg.value === roleGroupId.toString());
+    return roleGroup ? roleGroup.text ?? '' : '';
+  }
   trackData(index: number, item: any): any {
     return item.id;  // Hoặc bất kỳ thuộc tính duy nhất nào của item
   }

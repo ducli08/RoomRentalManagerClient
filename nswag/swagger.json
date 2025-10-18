@@ -1096,6 +1096,13 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "roleGroupPermissions": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

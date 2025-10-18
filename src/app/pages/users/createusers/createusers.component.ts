@@ -28,6 +28,7 @@ export class CreateUsersComponent implements OnInit {
   lstProvinces: any[] = [];
   lstDistricts: any[] = [];
   lstWards: any[] = [];
+  lstRoleGroups: any[] = [];
   @Output() saved = new EventEmitter<void>();
   // dynamic controls array (for template loop)
   controlRequestArray: Array<{
@@ -90,7 +91,7 @@ export class CreateUsersComponent implements OnInit {
       { label: 'Nghề nghiệp', key: 'job', type: 'text', placeholder: 'Nhập nghề nghiệp', validators: [Validators.required] },
       { label: 'Ngày sinh', key: 'dateOfBirth', type: 'date', placeholder: '', validators: [Validators.required] },
       { label: 'Giới tính', key: 'gender', type: 'select', options: [{ value: 'M', text: 'Nam' }, { value: 'F', text: 'Nữ' }], placeholder: 'Chọn giới tính', validators: [Validators.required] },
-      { label: 'Vai trò', key: 'roleGroupId', type: 'text', placeholder: 'Nhập vai trò', validators: [Validators.required] },
+      { label: 'Nhóm quyền', key: 'roleGroupId', type: 'select', options: this.lstRoleGroups, placeholder: 'Chọn nhóm quyền', validators: [Validators.required] },
       { label: 'Xe (ID)', key: 'bikeId', type: 'text', placeholder: 'Nhập mã xe', validators: [Validators.required] },
       { label: 'Mật khẩu', key: 'password', type: 'text', placeholder: 'Nhập mật khẩu', validators: [Validators.required] },
       { label: 'SĐT', key: 'phoneNumber', type: 'text', placeholder: 'Nhập số điện thoại', validators: [Validators.required] },
@@ -143,6 +144,7 @@ export class CreateUsersComponent implements OnInit {
     this.lstDistricts = this.memoryCache.get('districts') || [];
     this.lstProvinces = this.memoryCache.get('provinces') || [];
     this.lstWards = this.memoryCache.get('wards') || [];
+    this.lstRoleGroups = this.memoryCache.get('roleGroups') || [];
     // initialize controls after cached lists loaded
     this.initializeFormControls();
   }

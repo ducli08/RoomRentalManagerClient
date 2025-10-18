@@ -20,8 +20,8 @@
         <h1></h1>
       </ng-template>
     </div>
-    <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-      <li nz-submenu nzTitle="Quản lý phòng trọ" nzIcon="home">
+    <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed" *ngIf="showRoomRentalMenu">
+      <li nz-submenu nzTitle="Quản lý phòng trọ" nzIcon="home" *ngIf="showRoomRentalMenu">
         <ul>
           <li nz-menu-item nzMatchRouter>
             <a routerLink="roomrentals">
@@ -32,7 +32,7 @@
         </ul>
       </li>
       <li nz-submenu nzTitle="Quản trị hệ thống" nzIcon="setting">
-        <ul>
+        <ul *ngIf="showUserMenu">
           <li nz-menu-item nzMatchRouter>
             <a routerLink="users">
               <i nz-icon nzType="user"></i>
@@ -40,7 +40,7 @@
             </a>
           </li>
         </ul>
-        <ul>
+        <ul *ngIf="showRoleGroupMenu">
           <li nz-menu-item nzMatchRouter>
             <a routerLink="rolegroups">
               <nz-icon nzType="security-scan" nzTheme="outline" />

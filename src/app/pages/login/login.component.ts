@@ -24,6 +24,7 @@ export class LoginComponent implements OnInit {
       this.auth.login(this.username, this.password, this.rememberMe).subscribe(
         (res) => {
           if (res && res.accessToken) {
+            if (res.roleGroupPermissions) localStorage.setItem('role_group_permissions', JSON.stringify(res.roleGroupPermissions));
             if (res.user) localStorage.setItem('user', JSON.stringify(res.user));
             this.router.navigate(['/main']);
           } else {
