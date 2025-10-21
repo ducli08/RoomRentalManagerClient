@@ -30,6 +30,7 @@ import { forkJoin, of, take } from 'rxjs';
   standalone: true,
 })
 export class RoomrentalsComponent {
+  rolePermissions: string[] = [];
   checked = false;
   loading = false;
   indeterminate = false;
@@ -100,6 +101,13 @@ export class RoomrentalsComponent {
     const cachedRoomTypes = this.memoryCache.get<SelectListItem[]>('roomType');
     const cachedRoomStatus = this.memoryCache.get<SelectListItem[]>('roomStatus');
     const cachedUsers = this.memoryCache.get<SelectListItem[]>('user');
+    const perms = localStorage.getItem('role_group_permissions');
+    try{
+      this.rolePermissions = perms ? JSON.parse(perms) : [];
+    }
+    catch{
+      this.rolePermissions = [];
+    }
     const userObservable = cachedUsers ? of(cachedUsers) : this._getSelectListItem.getSelectListItems("user", "");
     const roomTypeObservable = cachedRoomTypes ? of(cachedRoomTypes) : this._getSelectListItem.getEnumSelectListItems("roomType")
     const roomStatusObservable = cachedRoomStatus ? of(cachedRoomStatus) : this._getSelectListItem.getEnumSelectListItems("roomStatus")
@@ -290,6 +298,13 @@ export class RoomrentalsComponent {
       },
       nzCancelText: 'Hủy',
     });
+  }
+  hasPermission(permission: string): boolean {
+    return this.rolePermissions.includes(permission);
+  }
+
+  hasAnyPermission(permissions: string[]): boolean {
+    return permissions.some(p => this.rolePermissions.includes(p));
   }
 }
 

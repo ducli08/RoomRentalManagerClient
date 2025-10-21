@@ -29,6 +29,7 @@ import { EditRoleGroupsComponent } from './editrolegroups/editrolegroups.compone
   standalone: true,
 })
 export class RoleGroupsComponent {
+  rolePermissions: string[] = [];
   checked = false;
   loading = false;
   indeterminate = false;
@@ -104,6 +105,13 @@ export class RoleGroupsComponent {
     this.roleGroupRequestDto.pageSize = this.pageSize;
     this.roleGroupRequestDto.sortBy = "";
     this.roleGroupRequestDto.sortOrder = "";
+    const perms = localStorage.getItem('role_group_permissions');
+    try{
+      this.rolePermissions = perms ? JSON.parse(perms) : [];
+    }
+    catch{
+      this.rolePermissions = [];
+    }
     this.controlRequestArray = [
       { label: 'Tên nhóm quyền', key: 'name', type: 'text', placeholder: 'Nhập tên nhóm quyền' },
       { label: 'Trạng thái nhóm quyền', key: 'active', type: 'text', placeholder: 'Nhập trạng thái nhóm quyền' },
@@ -242,6 +250,13 @@ export class RoleGroupsComponent {
       },
       nzCancelText: 'Hủy',
     });
+  }
+  hasPermission(permission: string): boolean {
+    return this.rolePermissions.includes(permission);
+  }
+
+  hasAnyPermission(permissions: string[]): boolean {
+    return permissions.some(p => this.rolePermissions.includes(p));
   }
 }
 

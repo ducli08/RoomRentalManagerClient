@@ -42,6 +42,7 @@ export interface Data {
   standalone: true,
 })
 export class UsersComponent implements OnInit {
+  rolePermissions: string[] = [];
   checked = false;
   loading = false;
   indeterminate = false;
@@ -120,6 +121,13 @@ export class UsersComponent implements OnInit {
     this.userRequestDto.pageSize = this.pageSize;
     this.userRequestDto.sortBy = "";
     this.userRequestDto.sortOrder = "";
+    const perms = localStorage.getItem('role_group_permissions');
+    try{
+      this.rolePermissions = perms ? JSON.parse(perms) : [];
+    }
+    catch{
+      this.rolePermissions = [];
+    }
     const cachedProvinces = this.memoryCache.get<SelectListItem[]>('provinces');
     const cachedDistricts = this.memoryCache.get<SelectListItem[]>('districts');
     const cachedWards = this.memoryCache.get<SelectListItem[]>('wards');
@@ -264,5 +272,13 @@ export class UsersComponent implements OnInit {
       result.push(array.slice(i, i + chunkSize));
     }
     return result;
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.rolePermissions.includes(permission);
+  }
+
+  hasAnyPermission(permissions: string[]): boolean {
+    return permissions.some(p => this.rolePermissions.includes(p));
   }
 }

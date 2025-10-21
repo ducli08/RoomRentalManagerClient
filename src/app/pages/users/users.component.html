@@ -22,7 +22,7 @@
   <button nz-button nzType="primary" (click)="getUsers()" style="align-self: flex-end;"><nz-icon nzType="search" nzTheme="outline" />Tìm kiếm</button>
 </form>
 <br>
-<div>
+<div *ngIf="hasPermission('User.Thêm')">
   <button nz-button nzType="primary" (click)="openCreateUserModal()"><nz-icon nzType="user-add" nzTheme="outline" />Tạo mới người dùng</button>
 </div>
 <br>
@@ -73,8 +73,8 @@
       <td>{{ data.bikeId }}</td>
       <td>{{ getRoleName(data.roleGroupId) }}</td>
       <td>
-        <nz-icon nzType="edit" nzTheme="outline" (click)="openEditUserModal(data)" />
-        <nz-icon nzType="delete" nzTheme="outline" (click)="openDeleteUserModal(data)" style="color:#ff4d4f; cursor:pointer"/>
+        <nz-icon nzType="edit" nzTheme="outline" *ngIf="hasPermission('User.Sửa')" (click)="openEditUserModal(data)" />
+        <nz-icon nzType="delete" nzTheme="outline" *ngIf="hasPermission('User.Xóa')" (click)="openDeleteUserModal(data)" style="color:#ff4d4f; cursor:pointer"/>
       </td>
     </tr>
   </tbody>
