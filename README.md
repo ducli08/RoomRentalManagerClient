@@ -57,3 +57,8 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+docker build --no-cache -t room-rental-manager-client .
+docker stop room-rental-manager-client
+docker rm room-rental-manager-client
+docker run -d -p 8080:80 --name room-rental-manager-client room-rental-manager-client

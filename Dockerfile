@@ -15,7 +15,7 @@ RUN ng build --configuration production
 
 # Stage 2: Serve the application bằng Nginx
 FROM nginx:alpine
-COPY --from=build /app/dist/room-rental-manager-client /usr/share/nginx/html
+COPY --from=build /app/dist/room-rental-manager-client/browser /usr/share/nginx/html
 
 #Copy file cấu hình Nginx tùy chỉnh (nếu có)
 #Copy nginx.conf /etc/nginx/conf.d/default.conf
