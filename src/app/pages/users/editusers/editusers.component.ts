@@ -176,8 +176,8 @@ export class EditUsersComponent implements OnInit {
           uid: `1`,
           name: `image-1`,
           status: 'done' as const,
-          url: 'https://localhost:7246' + this.data.userData.avatar,
-          thumbUrl: 'https://localhost:7246' + this.data.userData.avatar
+          url: 'http://192.168.1.45:7246' + this.data.userData.avatar,
+          thumbUrl: 'http://192.168.1.45:7246' + this.data.userData.avatar
         };
         this.fileList.push(file);
       }

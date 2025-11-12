@@ -202,8 +202,8 @@ export class EditRoomRentalsComponent {
           uid: `${index}`,
           name: `image-${index}`,
           status: 'done',
-          url: 'https://localhost:7246' + img,
-          thumbUrl: 'https://localhost:7246' + img
+          url: 'http://192.168.1.45:7246' + img,
+          thumbUrl: 'http://192.168.1.45:7246' + img
         }));
       }
     }
