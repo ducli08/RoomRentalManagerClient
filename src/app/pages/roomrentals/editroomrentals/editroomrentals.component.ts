@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
+import { Component, OnInit, Input, Inject, Optional } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { SelectListItem, ServiceProxy } from '../../../shared/services';
+import { API_BASE_URL, SelectListItem, ServiceProxy } from '../../../shared/services';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NzFormItemComponent, NzFormLabelComponent, NzFormControlComponent } from 'ng-zorro-antd/form';
 import { NZ_MODAL_DATA, NzModalModule } from 'ng-zorro-antd/modal';
@@ -36,9 +36,11 @@ export class EditRoomRentalsComponent {
   previewImage: string | undefined = '';
   previewVisible = false;
   editRoomRentalForm: FormGroup;
-  
+  baseUrl?: string;
   constructor(private fb: FormBuilder, private serviceProxy: ServiceProxy, private memoryCache: CategoryCacheService,
-    private _getSelectListItem: SelectListItemService, @Inject(NZ_MODAL_DATA) public data: { roomrentalData: any }) {
+    private _getSelectListItem: SelectListItemService, @Inject(NZ_MODAL_DATA) public data: { roomrentalData: any },
+    @Optional() @Inject(API_BASE_URL) baseUrl: string) {
+    this.baseUrl = baseUrl;
     // Initialize form with basic structure first
     this.editRoomRentalForm = this.fb.group({
       id: [''],
@@ -65,37 +67,36 @@ export class EditRoomRentalsComponent {
   }> = [];
 
   handlePreview = async (file: NzUploadFile): Promise<void> => {
-      if (!file.url && !file['preview']) {
-        file['preview'] = await getBase64(file.originFileObj!);
+    if (!file.url && !file['preview']) {
+      file['preview'] = await getBase64(file.originFileObj!);
+    }
+    this.previewImage = file.url || file['preview'];
+    this.previewVisible = true;
+  };
+  beforeUpload = (file: NzUploadFile): boolean => {
+    let rawFile: File | undefined;
+    let uploadFile: NzUploadFile | undefined;
+    if (file instanceof File) {
+      rawFile = file;
+      uploadFile = {
+        ...file,
+        originFileObj: file,
+        status: 'done',
+        thumnbUrl: URL.createObjectURL(file)
       }
-      this.previewImage = file.url || file['preview'];
-      this.previewVisible = true;
-    };
-    beforeUpload = (file: NzUploadFile): boolean => {
-      let rawFile: File | undefined;
-      let uploadFile: NzUploadFile | undefined;
-      if(file instanceof File) {
-        rawFile = file;
-        uploadFile = {
-          ...file,
-          originFileObj: file,
-          status: 'done',
-          thumnbUrl: URL.createObjectURL(file)
-        }
-      }
-      else
-      {
-        rawFile = file.originFileObj;
-        uploadFile = {
-          ...file,
-          originFileObj: file.originFileObj,
-          status: 'done',
-          thumnbUrl: file.url
-        };
-      }
-      this.fileList = [...this.fileList, uploadFile!];
-      return false; 
-    };
+    }
+    else {
+      rawFile = file.originFileObj;
+      uploadFile = {
+        ...file,
+        originFileObj: file.originFileObj,
+        status: 'done',
+        thumnbUrl: file.url
+      };
+    }
+    this.fileList = [...this.fileList, uploadFile!];
+    return false;
+  };
   ngOnInit(): void {
     const cachedRoomTypes = this.memoryCache.get<SelectListItem[]>('roomType');
     const cachedRoomStatus = this.memoryCache.get<SelectListItem[]>('roomStatus');
@@ -103,7 +104,7 @@ export class EditRoomRentalsComponent {
     const userObservable$ = cachedUsers ? of(cachedUsers) : this._getSelectListItem.getSelectListItems("user", "");
     const roomTypeObservable$ = cachedRoomTypes ? of(cachedRoomTypes) : this._getSelectListItem.getEnumSelectListItems("roomType");
     const roomStatusObservable$ = cachedRoomStatus ? of(cachedRoomStatus) : this._getSelectListItem.getEnumSelectListItems("roomStatus");
-    
+
     forkJoin([userObservable$, roomTypeObservable$, roomStatusObservable$])
       .subscribe(([users, roomTypes, roomStatus]) => {
         this.lstUser = users ? users : [];
@@ -115,7 +116,7 @@ export class EditRoomRentalsComponent {
 
         // Khởi tạo controlRequestArray sau khi có dữ liệu
         this.initializeFormControls();
-        
+
         // Fill dữ liệu vào form SAU KHI đã có tất cả select lists
         this.populateFormData();
       },
@@ -180,10 +181,10 @@ export class EditRoomRentalsComponent {
     // Fill dữ liệu vào form nếu có
     if (this.data && this.data.roomrentalData) {
       console.log('Populating form with data:', this.data.roomrentalData);
-      
+
       // Ensure the form values match the select options
       const formData = { ...this.data.roomrentalData };
-      
+
       // Convert enum values to match select options if needed
       if (formData.roomType !== undefined) {
         formData.roomType = formData.roomType.toString();
@@ -191,19 +192,19 @@ export class EditRoomRentalsComponent {
       if (formData.statusRoom !== undefined) {
         formData.statusRoom = formData.statusRoom.toString();
       }
-      
+
       this.editRoomRentalForm.patchValue(formData);
-      
+
       console.log('Form after patch:', this.editRoomRentalForm.value);
-      
+
       // Handle image descriptions if available
       if (this.data.roomrentalData.imagesDescription && this.data.roomrentalData.imagesDescription.length > 0) {
         this.fileList = this.data.roomrentalData.imagesDescription.map((img: any, index: number) => ({
           uid: `${index}`,
           name: `image-${index}`,
           status: 'done',
-          url: 'http://192.168.1.45:7246' + img,
-          thumbUrl: 'http://192.168.1.45:7246' + img
+          url: (this.baseUrl ?? '') + img,
+          thumbUrl: (this.baseUrl ?? '') + img
         }));
       }
     }
@@ -221,13 +222,13 @@ export class EditRoomRentalsComponent {
       }
 
       console.log('Form data to submit:', formData);
-      
+
       // Call the service to update room rental
       // this.serviceProxy.updateRoomRental(formData).subscribe(() => {
       //   alert('Phòng cho thuê đã được cập nhật thành công!');
       //   // Close modal and refresh parent data
       // });
-      
+
       // For now, just log the data
       alert('Dữ liệu sẵn sàng để cập nhật!');
     } else {

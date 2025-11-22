@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://192.168.1.45:7246"
+      "url": "https://localhost:7246"
     }
   ],
   "paths": {
@@ -214,20 +214,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "integer",
-                "format": "int64"
+                "$ref": "#/components/schemas/LogoutDto"
               }
             },
             "text/json": {
               "schema": {
-                "type": "integer",
-                "format": "int64"
+                "$ref": "#/components/schemas/LogoutDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "type": "integer",
-                "format": "int64"
+                "$ref": "#/components/schemas/LogoutDto"
               }
             }
           }
@@ -1103,6 +1100,16 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "LogoutDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

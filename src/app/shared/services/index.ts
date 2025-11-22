@@ -3,6 +3,7 @@ export * from './createoreditrolegroupdto.service';
 export * from './createoreditroomrentaldto.service';
 export * from './createoredituserdto.service';
 export * from './loginresponsedto.service';
+export * from './logoutdto.service';
 export * from './permissiondto.service';
 export * from './problemdetails.service';
 export * from './refreshrequestdto.service';

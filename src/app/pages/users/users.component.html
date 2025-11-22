@@ -56,7 +56,7 @@
         (nzCheckedChange)="onItemChecked(data.id !== undefined ? data.id : 0, $event)"></td>
       <td>
         <ng-container>
-          <img nz-image [nzSrc]="'http://192.168.1.45:7246' + data.avatar" nzAlt="avatar"
+          <img nz-image [nzSrc]="(baseUrl ?? '') + (data?.avatar ?? '')" nzAlt="avatar"
             style="width: 50px; height: 50px; margin-right: 5px;" />
         </ng-container>
       </td>

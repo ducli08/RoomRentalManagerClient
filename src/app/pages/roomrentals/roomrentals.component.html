@@ -62,7 +62,7 @@
       <td>{{ data.area }}</td>
       <td>
         <div class="image-wrapper" (click)="previewVisible = true" *ngIf="data.imagesDescription">
-          <img nz-image [nzSrc]="'http://192.168.1.45:7246' + data.imagesDescription[0]"
+          <img nz-image [nzSrc]="(baseUrl ?? '') + data.imagesDescription[0]"
             style="width: 50px; height: 50px; margin-right: 5px; cursor: pointer;" />
           <div class="overlay" *ngIf="data.imagesDescription.length > 1">
             +{{ data.imagesDescription.length - 1 }}
@@ -71,7 +71,7 @@
 
         <nz-image-group *ngIf="previewVisible">
           <ng-container *ngFor="let img of data.imagesDescription">
-            <img nz-image [nzSrc]="'http://192.168.1.45:7246' + img" style="display:none;" />
+            <img nz-image [nzSrc]="(baseUrl ?? '') + img" style="display:none;" />
           </ng-container>
         </nz-image-group>
       </td>

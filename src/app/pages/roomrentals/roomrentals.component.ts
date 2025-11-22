@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RoomRentalDto, RoomRentalFilterDto, SelectListItem, RoomRentalFilterDtoPagedRequestDto, RoomType, RoomStatus, ServiceProxy } from '../../shared/services';
+import { Component, Inject, Optional } from '@angular/core';
+import { RoomRentalDto, RoomRentalFilterDto, SelectListItem, RoomRentalFilterDtoPagedRequestDto, RoomType, RoomStatus, ServiceProxy, API_BASE_URL } from '../../shared/services';
 import { Data } from '@angular/router';
 import { NzModalService, NzModalModule } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
@@ -48,6 +48,7 @@ export class RoomrentalsComponent {
   lstRoomStatuses: SelectListItem[] = [];
   priceRange: [number, number] = [0, 100];
   areaRange: [number, number] = [0, 100];
+  baseUrl?: string;
   filterPerRows: Array<Array<{
     label: string;
     key: keyof RoomRentalFilterDto;
@@ -62,7 +63,11 @@ export class RoomrentalsComponent {
     options?: () => SelectListItem[];
     placeholder?: string;
   }> = [];
-  constructor(private _serviceProxy: ServiceProxy, private _getSelectListItem: SelectListItemService, private modalService: NzModalService, private memoryCache: CategoryCacheService, private notification: NzNotificationService) { }
+  constructor(private _serviceProxy: ServiceProxy, private _getSelectListItem: SelectListItemService,
+    private modalService: NzModalService, private memoryCache: CategoryCacheService,
+    private notification: NzNotificationService, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+    this.baseUrl = baseUrl;
+  }
   onPageChange(page: number): void {
     this.pageIndex = page;
     this.roomRentalRequestDto.page = page;
@@ -102,10 +107,10 @@ export class RoomrentalsComponent {
     const cachedRoomStatus = this.memoryCache.get<SelectListItem[]>('roomStatus');
     const cachedUsers = this.memoryCache.get<SelectListItem[]>('user');
     const perms = localStorage.getItem('role_group_permissions');
-    try{
+    try {
       this.rolePermissions = perms ? JSON.parse(perms) : [];
     }
-    catch{
+    catch {
       this.rolePermissions = [];
     }
     const userObservable = cachedUsers ? of(cachedUsers) : this._getSelectListItem.getSelectListItems("user", "");
@@ -205,7 +210,7 @@ export class RoomrentalsComponent {
       });
   }
   openCreateRoomRentalModal(): void {
-    const modal =this.modalService.create({
+    const modal = this.modalService.create({
       nzTitle: 'Tạo phòng cho thuê mới',
       nzContent: CreateRoomRentalsComponent,
       nzWidth: '600px',

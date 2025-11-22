@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Inject, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Inject, Output, EventEmitter, Optional } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CreateOrEditUserDto, SelectListItem, ServiceProxy, UserDto } from '../../../shared/services';
+import { API_BASE_URL, CreateOrEditUserDto, SelectListItem, ServiceProxy, UserDto } from '../../../shared/services';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NzFormItemComponent, NzFormLabelComponent, NzFormControlComponent } from 'ng-zorro-antd/form';
 import { NZ_MODAL_DATA, NzModalModule } from 'ng-zorro-antd/modal';
@@ -30,8 +30,11 @@ export class EditUsersComponent implements OnInit {
   lstDistricts: any[] = [];
   lstWards: any[] = [];
   lstRoleGroups: any[] = [];
+  baseUrl? : string;
   @Output() saved = new EventEmitter<void>();
-  constructor(private fb: FormBuilder, private serviceProxy: ServiceProxy, private memoryCache: CategoryCacheService, @Inject(NZ_MODAL_DATA) public data: { userData: any }) {
+  constructor(private fb: FormBuilder, private serviceProxy: ServiceProxy, private memoryCache: CategoryCacheService,
+    @Inject(NZ_MODAL_DATA) public data: { userData: any }, @Optional() @Inject(API_BASE_URL) baseUrl: string) {
+    this.baseUrl = baseUrl;
     this.editUserForm = this.fb.group({
       id: ['', Validators.required],
       name: ['', Validators.required],
@@ -176,8 +179,8 @@ export class EditUsersComponent implements OnInit {
           uid: `1`,
           name: `image-1`,
           status: 'done' as const,
-          url: 'http://192.168.1.45:7246' + this.data.userData.avatar,
-          thumbUrl: 'http://192.168.1.45:7246' + this.data.userData.avatar
+          url: this.baseUrl + this.data.userData.avatar,
+          thumbUrl: this.baseUrl + this.data.userData.avatar
         };
         this.fileList.push(file);
       }

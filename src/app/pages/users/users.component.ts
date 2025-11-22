@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CommonModule } from '@angular/common';
@@ -17,6 +17,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { SelectListItemService } from '../../shared/get-select-list-item.service';
 import { NzImageModule } from 'ng-zorro-antd/image';
+import { API_BASE_URL } from '../../shared/services/service.proxies';
 export interface Data {
   id: number;
   name: string;
@@ -35,8 +36,8 @@ export interface Data {
 @Component({
   selector: 'app-users',
   imports: [NzTableModule, NzButtonModule, CommonModule, NzModalModule, NzIconModule, NzFormModule,
-     FormsModule, NzSelectModule, NzInputModule, NzGridModule,
-     NzDatePickerModule, NzImageModule],
+    FormsModule, NzSelectModule, NzInputModule, NzGridModule,
+    NzDatePickerModule, NzImageModule],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css'],
   standalone: true,
@@ -58,6 +59,7 @@ export class UsersComponent implements OnInit {
   lstDistricts: SelectListItem[] = [];
   lstWards: SelectListItem[] = [];
   lstRoleGroups: SelectListItem[] = [];
+  baseUrl?: string;
   filterPerRows: Array<Array<{
     label: string;
     key: keyof UserFilterDto;
@@ -72,7 +74,11 @@ export class UsersComponent implements OnInit {
     options?: () => SelectListItem[];
     placeholder?: string;
   }> = [];
-  constructor(private _serviceProxy: ServiceProxy,private _getSelectListItem: SelectListItemService, private modalService: NzModalService, private memoryCache: CategoryCacheService) { }
+  constructor(private _serviceProxy: ServiceProxy, private _getSelectListItem: SelectListItemService,
+    private modalService: NzModalService, private memoryCache: CategoryCacheService,
+    @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+    this.baseUrl = baseUrl;
+  }
   updateCheckedSet(id: number, checked: boolean): void {
     if (checked) {
       this.setOfCheckedId.add(id);
@@ -122,10 +128,10 @@ export class UsersComponent implements OnInit {
     this.userRequestDto.sortBy = "";
     this.userRequestDto.sortOrder = "";
     const perms = localStorage.getItem('role_group_permissions');
-    try{
+    try {
       this.rolePermissions = perms ? JSON.parse(perms) : [];
     }
-    catch{
+    catch {
       this.rolePermissions = [];
     }
     const cachedProvinces = this.memoryCache.get<SelectListItem[]>('provinces');

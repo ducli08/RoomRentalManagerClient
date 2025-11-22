@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Optional, Inject } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../shared/auth.service';
+import { API_BASE_URL } from '../../shared/services/service.proxies';
 
 @Component({
   selector: 'app-main-layout',
@@ -22,7 +23,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   userName = 'User';
   avatarUrl?: string;
   private sub?: Subscription;
-  constructor(private router: Router, private authService: AuthService) {}
+  baseUrl?: string;
+  constructor(private router: Router, private authService: AuthService, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+    this.baseUrl = baseUrl;
+  }
 
   ngOnInit(): void {
     this.showUserMenu = this.hasResourcePermission('User');
