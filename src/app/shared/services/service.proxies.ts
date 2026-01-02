@@ -19,6 +19,7 @@ import { FileParameter, UserFilterDtoPagedRequestDto } from './userfilterdtopage
 import { CreateOrEditUserDto } from './createoredituserdto.service';
 import { UserDtoPagedResultDto } from './userdtopagedresultdto.service';
 import { RoleDto } from './roledto.service';
+import { GoogleLoginRequestDto } from './googleloginrequestdto.service';
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
@@ -335,6 +336,62 @@ export class ServiceProxy {
             }));
         }
         return _observableOf<void>(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    google(body: GoogleLoginRequestDto | undefined): Observable<LoginResponseDto> {
+        let url_ = this.baseUrl + "/api/Login/google";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGoogle(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGoogle(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LoginResponseDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LoginResponseDto>;
+        }));
+    }
+
+    protected processGoogle(response: HttpResponseBase): Observable<LoginResponseDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LoginResponseDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<LoginResponseDto>(null as any);
     }
 
     /**

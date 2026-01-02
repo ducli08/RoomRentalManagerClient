@@ -80,4 +80,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       return s === resource.toLowerCase() || s.startsWith(prefix);
     });
   }
+
+  onLogout(): void{
+    this.authService.logout();
+  }
 }

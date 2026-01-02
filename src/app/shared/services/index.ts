@@ -2,6 +2,7 @@ export * from './service.proxies';
 export * from './createoreditrolegroupdto.service';
 export * from './createoreditroomrentaldto.service';
 export * from './createoredituserdto.service';
+export * from './googleloginrequestdto.service';
 export * from './loginresponsedto.service';
 export * from './logoutdto.service';
 export * from './permissiondto.service';

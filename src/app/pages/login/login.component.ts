@@ -1,22 +1,84 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../shared/auth.service';
+import { GoogleAuthService, GoogleCredentialResponse } from '../../shared/google-auth.service';
+
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
   standalone: true,
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
   username: string = '';
   password: string = '';
   rememberMe: boolean = false;
-  constructor(private router: Router, private auth: AuthService) { }
+  isGoogleLoading: boolean = false;
+  googleError: string = '';
+
+  private googleSub?: Subscription;
+
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+    private googleAuth: GoogleAuthService
+  ) { }
 
   ngOnInit(): void {
-    // Initialize any data or services needed for the login component
+    // Subscribe to Google credential responses
+    this.googleSub = this.googleAuth.credential$.subscribe((response) => {
+      this.handleGoogleCredential(response);
+    });
+  }
+
+  ngAfterViewInit(): void {
+    // Initialize Google Sign-In after view is ready
+    this.initializeGoogleSignIn();
+  }
+
+  ngOnDestroy(): void {
+    this.googleSub?.unsubscribe();
+  }
+
+  private async initializeGoogleSignIn(): Promise<void> {
+    try {
+      await this.googleAuth.initialize();
+      // Render Google button in the container
+      this.googleAuth.renderButton('google-signin-button');
+    } catch (error) {
+      console.error('Failed to initialize Google Sign-In', error);
+      this.googleError = 'Không thể khởi tạo đăng nhập Google';
+    }
+  }
+
+  private handleGoogleCredential(response: GoogleCredentialResponse): void {
+    if (!response.credential) {
+      this.googleError = 'Không nhận được thông tin từ Google';
+      return;
+    }
+
+    this.isGoogleLoading = true;
+    this.googleError = '';
+
+    this.googleAuth.loginWithGoogle(response.credential, this.rememberMe).subscribe({
+      next: (res) => {
+        this.isGoogleLoading = false;
+        if (res && res.accessToken) {
+          this.router.navigate(['/main']);
+        } else {
+          this.googleError = 'Đăng nhập Google thất bại';
+        }
+      },
+      error: (err) => {
+        this.isGoogleLoading = false;
+        console.error('Google login failed', err);
+        this.googleError = err?.error?.message || 'Đăng nhập Google thất bại';
+      }
+    });
   }
 
   onLogin(): void {
@@ -37,6 +99,7 @@ export class LoginComponent implements OnInit {
       );
     }
   }
+
   onForgotPassword(event: Event): void {
     // Handle forgot password logic here
   }

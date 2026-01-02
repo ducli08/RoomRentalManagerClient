@@ -40,5 +40,27 @@
     <button type="submit" class="login-btn" [disabled]="loginForm.invalid">
       Đăng nhập
     </button>
+
+    <!-- Google Sign-In Section -->
+    <div class="divider-container">
+      <span class="divider-line"></span>
+      <span class="divider-text">hoặc</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <div class="google-signin-container">
+      <!-- Google Sign-In Button will be rendered here -->
+      <div id="google-signin-button"></div>
+      
+      <!-- Loading indicator -->
+      <div *ngIf="isGoogleLoading" class="google-loading">
+        <span>Đang xử lý...</span>
+      </div>
+      
+      <!-- Error message -->
+      <div *ngIf="googleError" class="google-error">
+        {{ googleError }}
+      </div>
+    </div>
   </form>
 </div>

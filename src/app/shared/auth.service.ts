@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { tap, map, catchError, finalize } from 'rxjs/operators';
-import { ServiceProxy, LoginResponseDto, RefreshRequestDto } from './services';
+import { ServiceProxy, LoginResponseDto, RefreshRequestDto, LogoutDto } from './services';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -17,7 +17,6 @@ export class AuthService {
     // populate current user from any existing token
     this.setCurrentUserFromToken();
   }
-
   login(username: string, password: string, rememberMe: boolean): Observable<LoginResponseDto> {
     return this.proxy.login(username, password, rememberMe).pipe(
       tap(res => {
@@ -29,8 +28,26 @@ export class AuthService {
   }
 
   logout(): void {
-    this.clearStorage();
-    this.router.navigate(['/login']);
+    const userId = this.getUserIdFromToken();
+    const finish = () => {
+      this.clearStorage();
+      this.router.navigate(['/login']);
+    }
+    if (userId !== undefined) {
+      const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
+      if (refreshToken) {
+        // notify backend and always finish cleanup (ignore errors)
+        this.proxy.logout(userId).pipe(
+          catchError(() => of(null)),
+          finalize(() => finish())
+        ).subscribe();
+      } else {
+        finish();
+      }
+    }
+    else {
+      finish();
+    }
   }
 
   getAccessToken(): string | null {
@@ -108,7 +125,7 @@ export class AuthService {
     });
   }
 
-  
+
   private attemptRefresh(remember: boolean, autoLogoutOnFail = true): Observable<boolean> {
     if (this.refreshInProgress) return of(false);
 
@@ -122,8 +139,8 @@ export class AuthService {
     }
 
     this.refreshInProgress = true;
-  const userId = this.getUserIdFromToken();
-  const req = new RefreshRequestDto({ userId: (userId as any) || undefined as any, refreshToken, rememberMe: remember });
+    const userId = this.getUserIdFromToken();
+    const req = new RefreshRequestDto({ userId: (userId as any) || undefined as any, refreshToken, rememberMe: remember });
     return this.proxy.refresh(req).pipe(
       map((res: any) => {
         // If server returned new tokens in the response body, save them.
@@ -170,12 +187,12 @@ export class AuthService {
     // name: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name
     // nameidentifier: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
     const username =
-      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] 
-      undefined;
+      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']
+    undefined;
     const avatarUrl = localStorage.getItem('avatar_url') || sessionStorage.getItem('avatar_url') || undefined;
     const rawId =
-      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] 
-      undefined;
+      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
+    undefined;
     let userId: number | undefined = undefined;
     if (rawId !== undefined && rawId !== null) {
       if (typeof rawId === 'number') userId = rawId;
@@ -185,13 +202,13 @@ export class AuthService {
   }
 
   /** Read numeric userId from current access token if available */
-  private getUserIdFromToken(): number | undefined {
+  getUserIdFromToken(): number | undefined {
     const token = this.getAccessToken();
     if (!token) return undefined;
     const payload = this.parseJwt(token) || {};
     const rawId =
-      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] 
-      undefined;
+      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
+    undefined;
     if (rawId === undefined || rawId === null) return undefined;
     if (typeof rawId === 'number') return rawId;
     if (typeof rawId === 'string' && /^[0-9]+$/.test(rawId)) return parseInt(rawId, 10);
@@ -219,7 +236,7 @@ export class AuthService {
     }
     if (remember) localStorage.setItem('remember_me', 'true');
     else localStorage.removeItem('remember_me');
-    if(res.user?.avatar != null && res.user?.avatar != ''){
+    if (res.user?.avatar != null && res.user?.avatar != '') {
       localStorage.setItem('avatar_url', res.user.avatar);
     }
     // (re)start expiry countdown based on the new expires_at value
@@ -251,7 +268,7 @@ export class AuthService {
       if (parts.length !== 3) return null;
       const payload = parts[1];
       const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-      const json = decodeURIComponent(atob(base64).split('').map(function(c) {
+      const json = decodeURIComponent(atob(base64).split('').map(function (c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
       return JSON.parse(json);

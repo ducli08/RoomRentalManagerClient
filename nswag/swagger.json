@@ -236,6 +236,55 @@
         }
       }
     },
+    "/api/Login/google": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "operationId": "google",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/RoleGroup/getAllRoleGroupsAsync": {
       "post": {
         "tags": [
@@ -1054,6 +1103,19 @@
           "avatar": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "GoogleLoginRequestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "idToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "rememberMe": {
+            "type": "boolean"
           }
         }
       },
